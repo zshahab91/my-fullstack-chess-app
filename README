@@ -1,0 +1,5 @@
+# In one terminal
+cd backend && npm run start:dev
+
+# In another terminal
+cd frontend && npm run dev
