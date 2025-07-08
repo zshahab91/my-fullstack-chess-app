@@ -1,0 +1,8 @@
+{
+  "name": "my-fullstack-chess-app",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}
