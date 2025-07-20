@@ -1,0 +1,29 @@
+[
+  {
+    "id": "test1",
+    "positions": [
+      { "position": "e5", "piece": "knight", "color": "white" },
+      { "position": "d4", "piece": "pawn", "color": "black" },
+      { "position": "e6", "piece": "bishop", "color": "white" },
+      { "position": "f5", "piece": "queen", "color": "black" }
+    ]
+  },
+  {
+    "id": "test2",
+    "positions": [
+      { "position": "g1", "piece": "knight", "color": "white" },
+      { "position": "h3", "piece": "pawn", "color": "black" },
+      { "position": "f2", "piece": "bishop", "color": "white" },
+      { "position": "e4", "piece": "queen", "color": "black" }
+    ]
+  },
+  {
+    "id": "test3",
+    "positions": [
+      { "position": "c3", "piece": "knight", "color": "white" },
+      { "position": "b5", "piece": "pawn", "color": "black" },
+      { "position": "d6", "piece": "bishop", "color": "white" },
+      { "position": "e7", "piece": "queen", "color": "black" }
+    ]
+  }
+]
