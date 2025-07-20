@@ -1,5 +1,10 @@
-echo "node_modules/
+node_modules/
 dist/
 .next/
 .env
-" > .gitignore
+
+# Ignore frontend build and environment files
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.next/
+/frontend/.env

@@ -10,7 +10,23 @@ export class AppController {
   start(): string {
     return this.appService.start();
   }
-  @Get('board/:id')
+  @Get('boards')
+  getAllBoards(): any {
+    const dbPath = path.join(__dirname, '..', 'db', 'chess.json');
+    let boardsData: any[];
+    try {
+      const data = fs.readFileSync(dbPath, 'utf8');
+      boardsData = JSON.parse(data);
+    } catch (error) {
+      console.error('Error reading chess data:', error);
+      return { error: 'Error reading chess data' };
+    }
+    if (!Array.isArray(boardsData)) {
+      return { error: 'Invalid chess data format' };
+    }
+    return boardsData.map((board: { id: string }) => ({ id: board.id }));
+  } 
+  @Get('boards/:id')
   getBoard(@Param('id') id: string): any {
     const dbPath = path.join(__dirname, '..', 'db', 'chess.json');
     let boardsData: any[];
@@ -21,7 +37,6 @@ export class AppController {
       console.error('Error reading chess data:', error);
       return { error: 'Error reading chess data' };
     }
-    console.log('Boards Data:', boardsData);
     if (!Array.isArray(boardsData)) {
       return { error: 'Invalid chess data format' };
     }
