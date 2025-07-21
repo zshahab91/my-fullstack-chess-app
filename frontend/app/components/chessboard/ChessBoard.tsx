@@ -21,7 +21,7 @@ export default function ChessBoard() {
         return (
           <div
             key={square}
-            className={`flex items-center justify-center w-20 h-20 text-8xl cursor-pointer hover:border-3 hover:border-green-500 ${isDark ? "bg-gray-900" : "bg-green-250"
+            className={`flex items-center justify-center w-20 h-20 text-8xl cursor-pointer hover:border-3 hover:border-green-500 ${isDark ? "bg-gray-900" : "bg-gray-500"
               }`}
           >
             {piece ? getPieceSymbol(piece.piece, piece.color) : ""}
