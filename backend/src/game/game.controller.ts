@@ -46,11 +46,12 @@ export class GameController {
 
     // Find or create a game
     let game = gamesData.find((g) => g.black === null);
-    if (game ) {
+    if (game) {
       if (game.white === decoded.username) {
-        return res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ error: 'You are already in this game' });
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          color: 'white',
+          status: 'You are already in this game',
+        });
       }
       // Update game with black player
       game.black = decoded.username || token;

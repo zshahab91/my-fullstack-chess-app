@@ -1,36 +1,13 @@
 import axios from "axios";
-import { QueryClient } from "@tanstack/react-query";
+import { setAuthToken as setInterceptorAuthToken } from "./apiInterceptor";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"; // adjust port if needed
 
-// Store token in memory (or use localStorage if you want persistence)
-let authToken: string | null = null;
 
-// Store QueryClient instance internally
-let queryClient: QueryClient | null = null;
-
-// Set token in axios default headers
 const setAuthToken = (token: string) => {
-  authToken = token;
+  setInterceptorAuthToken(token);
 };
 
-// Set QueryClient instance
-const setQueryClient = (client: QueryClient) => {
-  queryClient = client;
-};
-
-// Add a flag to prevent double call
-axios.interceptors.request.use(
-  (config) => {
-    if (authToken) {
-      config.headers["Authorization"] = `Bearer ${authToken}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 export const apiService = {
   getAllBoards: async () => {
     const res = await axios.get(`${API_BASE_URL}/boards`);
@@ -41,7 +18,6 @@ export const apiService = {
       const response = await axios.get(`${API_BASE_URL}/boards/${id}`);
       return response.data;
     } catch (error) {
-      console.error("API error:", error);
       throw error;
     }
   },
@@ -62,15 +38,9 @@ export const apiService = {
     }
   },
   setAuthToken,
-  setQueryClient,
-
-  // Call /game/start and store response in React Query (if queryClient is set)
   startGame: async () => {
     try {
       const response = await axios.post(`${API_BASE_URL}/game/start`);
-      if (queryClient) {
-        queryClient.setQueryData(["gameStatus"], response.data);
-      }
       return response.data;
     } catch (error) {
       throw error;
