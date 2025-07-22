@@ -48,7 +48,7 @@ export class GameController {
     let game = gamesData.find((g) => g.black === null);
     if (game) {
       if (game.white === decoded.username) {
-        return res.status(HttpStatus.BAD_REQUEST).json({
+        return res.status(HttpStatus.OK).json({
           color: 'white',
           status: 'You are already in this game',
         });

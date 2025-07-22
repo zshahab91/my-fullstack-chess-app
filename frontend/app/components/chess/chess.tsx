@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import ChessBoard from "../chessboard/ChessBoard";
-import SidebarClient from "../sidebar/SidebarClient";
 import { apiService } from "@/app/services/apiService";
 import { useQueryClient } from "@tanstack/react-query";
+import SidebarClient from "../sidebar/sidebarClient";
 
 export default function Chess() {
     const queryClient = useQueryClient();
