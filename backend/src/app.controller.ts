@@ -1,49 +1,46 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Res, HttpStatus } from '@nestjs/common';
 import { AppService } from './app.service';
 import * as path from 'path';
 import * as fs from 'fs';
+import { Response } from 'express';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
-  @Get('start')
-  start(): string {
-    return this.appService.start();
-  }
+
   @Get('boards')
-  getAllBoards(): any {
+  getAllBoards(@Res() res: Response): any {
     const dbPath = path.join(__dirname, '..', 'db', 'chess.json');
     let boardsData: any[];
     try {
       const data = fs.readFileSync(dbPath, 'utf8');
       boardsData = JSON.parse(data);
     } catch (error) {
-      console.error('Error reading chess data:', error);
-      return { error: 'Error reading chess data' };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: `Error reading chess data: ${error}` });
     }
     if (!Array.isArray(boardsData)) {
-      return { error: 'Invalid chess data format' };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Invalid chess data format' });
     }
-    return boardsData.map((board: { id: string }) => ({ id: board.id }));
-  } 
+    return res.status(HttpStatus.OK).json(boardsData.map((board: { id: string }) => ({ id: board.id })));
+  }
+
   @Get('boards/:id')
-  getBoard(@Param('id') id: string): any {
+  getBoard(@Param('id') id: string, @Res() res: Response): any {
     const dbPath = path.join(__dirname, '..', 'db', 'chess.json');
     let boardsData: any[];
     try {
       const data = fs.readFileSync(dbPath, 'utf8');
       boardsData = JSON.parse(data);
     } catch (error) {
-      console.error('Error reading chess data:', error);
-      return { error: 'Error reading chess data' };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: `Error reading chess data: ${error}` });
     }
     if (!Array.isArray(boardsData)) {
-      return { error: 'Invalid chess data format' };
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Invalid chess data format' });
     }
     const board = boardsData.find((b: { id: string }) => b.id === id);
     if (!board) {
-      return { error: 'Board not found' };
+      return res.status(HttpStatus.NOT_FOUND).json({ error: 'Board not found' });
     }
-    return board;
+    return res.status(HttpStatus.OK).json(board);
   }
 }

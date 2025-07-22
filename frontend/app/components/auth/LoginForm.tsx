@@ -1,23 +1,29 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { apiService } from "@/app/services/apiService";
 
 export default function LoginForm({ onLogin }: { onLogin?: (username: string) => void }) {
   const [username, setUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const inProgress = useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (inProgress.current) return;
+    inProgress.current = true;
     setError(null);
 
     try {
       // Use the apiService for login
-      const data = await apiService.login(username);
+      await apiService.login(username);
+      // Call start service after login
       if (onLogin) onLogin(username);
       // Optionally, you can store the token here if needed
       // localStorage.setItem("token", data.token);
     } catch (err: any) {
       setError(err?.response?.data?.message || "Login failed");
+    } finally {
+      inProgress.current = false;
     }
   };
 
@@ -38,6 +44,7 @@ export default function LoginForm({ onLogin }: { onLogin?: (username: string) =>
       >
         Enter
       </button>
-      </form>
-    );
+      {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+    </form>
+  );
 }
