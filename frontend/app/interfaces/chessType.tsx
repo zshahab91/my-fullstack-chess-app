@@ -1,16 +1,16 @@
- export type Piece = {
+export type Piece = {
   position: string;
   piece: string;
   color: string;
 };
 
 export type ChessBoardProps = {
-  positions?: Piece[];
+  positions: Piece[];
 };
 
 export type Board = {
   id: string;
-  positions: any[];
+  positions: Piece[];
 };
 
 export const boardSquares = [

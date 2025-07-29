@@ -6,6 +6,8 @@ import { getPieceSymbol } from "@/app/utils/global";
 
 
 export default function ChessBoard() {
+  // Define the type for selectedBoard
+
   const { data: selectedBoard } = useQuery<ChessBoardProps>({
     queryKey: ["selectedBoard"],
     enabled: true, // ensures the query is active

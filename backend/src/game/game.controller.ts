@@ -3,10 +3,11 @@ import { GameService } from './game.service';
 import * as path from 'path';
 import * as fs from 'fs';
 import { Response } from 'express';
+import { SseService } from '../sse/sse.service'; // Import SseService
 
 @Controller('game')
 export class GameController {
-  constructor(private readonly gameService: GameService) {}
+  constructor(private readonly gameService: GameService, private readonly sseService: SseService) {}
 
   @Post('start')
   async start(@Req() req: any, @Res() res: Response) {
@@ -35,13 +36,20 @@ export class GameController {
       if (game.white === user.token) {
         return res.status(HttpStatus.OK).json({
           color: 'white',
-          status: 'You are already in this game',
+          status: game.status,
         });
       }
       // Update game with black player
       game.black = user.token;
       game.status = 'in-progress';
       game.updatedAt = new Date().toISOString();
+      // Send SSE event just to the white player
+      this.sseService.sendEvent({
+        to: game.white, // assuming your SSE service can target by user token
+        message: 'A new game has started, please join!',
+        status: game.status,
+        color:'white',
+      });
     } else {
       // Read initial board from chess.json
       let initialBoard: any[] = [];
