@@ -21,10 +21,10 @@ export const apiService = {
       throw error;
     }
   },
-  login: async (username: string) => {
+  login: async (nickName: string) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/auth/login`, {
-        username,
+        nickName,
       });
       const { token } = response.data;
       if (!token) {

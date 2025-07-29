@@ -1,12 +1,19 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { GameModule } from './game/game.module';
+import { AuthMiddleware } from './auth/auth.middleware';
 
 @Module({
   imports: [AuthModule, GameModule],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes({ path: 'game/*', method: RequestMethod.ALL });
+  }
+}

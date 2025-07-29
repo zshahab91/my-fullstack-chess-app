@@ -1,5 +1,4 @@
 import { Controller, Post, Req, Res, HttpStatus } from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
 import { GameService } from './game.service';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -11,21 +10,7 @@ export class GameController {
 
   @Post('start')
   async start(@Req() req: any, @Res() res: Response) {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json({ error: 'No token provided' });
-    }
-    const token = authHeader.replace('Bearer ', '');
-    let decoded: any;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret');
-    } catch (e) {
-      return res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json({ error: 'Invalid token' });
-    }
+    const user = req.user; // user info from middleware
 
     // Prepare db paths
     const dbDir = path.join(__dirname, '..', 'db');
@@ -47,24 +32,41 @@ export class GameController {
     // Find or create a game
     let game = gamesData.find((g) => g.black === null);
     if (game) {
-      if (game.white === decoded.username) {
+      if (game.white === user.token) {
         return res.status(HttpStatus.OK).json({
           color: 'white',
           status: 'You are already in this game',
         });
       }
       // Update game with black player
-      game.black = decoded.username || token;
+      game.black = user.token;
       game.status = 'in-progress';
       game.updatedAt = new Date().toISOString();
     } else {
+      // Read initial board from chess.json
+      let initialBoard: any[] = [];
+      try {
+        const chessJsonPath = path.join(__dirname, '../..', 'db', 'chess.json');
+        if (fs.existsSync(chessJsonPath)) {
+          const chessRaw = fs.readFileSync(chessJsonPath, 'utf8');
+          const chessBoards = JSON.parse(chessRaw);
+          const initial = chessBoards.find((b: any) => b.id === 'initial');
+          if (initial && Array.isArray(initial.positions)) {
+            initialBoard = initial.positions;
+          }
+        }
+      } catch (error) {
+        // fallback to empty board if error
+        initialBoard = [];
+      }
+
       game = {
         id: Date.now().toString(),
-        white: decoded.username || token,
+        white: user.token,
         black: null,
         createdAt: new Date().toISOString(),
         moves: [],
-        board: [],
+        board: initialBoard,
         status: 'waiting',
       };
       gamesData.push(game);
@@ -83,8 +85,9 @@ export class GameController {
     }
 
     return res.status(HttpStatus.OK).json({
-      color: game.white === decoded.username ? 'white' : 'black',
+      color: game.white === user.token ? 'white' : 'black',
       status: game.status,
+      board: game.board
     });
   }
 }

@@ -1,6 +1,6 @@
 [
   {
-    "id": "reset",
+    "id": "initial",
     "positions": [
       { "position": "a1", "piece": "rook", "color": "white" },
       { "position": "b1", "piece": "knight", "color": "white" },

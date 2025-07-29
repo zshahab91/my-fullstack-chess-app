@@ -2,8 +2,8 @@
 import { useRef, useState } from "react";
 import { apiService } from "@/app/services/apiService";
 
-export default function LoginForm({ onLogin }: { onLogin?: (username: string) => void }) {
-  const [username, setUsername] = useState("");
+export default function LoginForm({ onLogin }: { onLogin?: (nickName: string) => void }) {
+  const [nickName, setNickName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const inProgress = useRef(false);
 
@@ -15,9 +15,9 @@ export default function LoginForm({ onLogin }: { onLogin?: (username: string) =>
 
     try {
       // Use the apiService for login
-      await apiService.login(username);
+      await apiService.login(nickName);
       // Call start service after login
-      if (onLogin) onLogin(username);
+      if (onLogin) onLogin(nickName);
     } catch (err: any) {
       setError(err?.response?.data?.message || "Login failed");
     } finally {
@@ -27,13 +27,13 @@ export default function LoginForm({ onLogin }: { onLogin?: (username: string) =>
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-gray-100 p-6 rounded shadow w-80">
-      <h2 className="text-xl font-bold text-center text-gray-700">Nickname</h2>
+      <h2 className="text-xl font-bold text-center text-gray-700">Nick Name</h2>
       <input
         type="text"
-        placeholder="Username"
+        placeholder="NickName"
         className="p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 text-gray-700"
-        value={username}
-        onChange={e => setUsername(e.target.value)}
+        value={nickName}
+        onChange={e => setNickName(e.target.value)}
         required
       />
       <button
