@@ -18,8 +18,6 @@ export default function LoginForm({ onLogin }: { onLogin?: (username: string) =>
       await apiService.login(username);
       // Call start service after login
       if (onLogin) onLogin(username);
-      // Optionally, you can store the token here if needed
-      // localStorage.setItem("token", data.token);
     } catch (err: any) {
       setError(err?.response?.data?.message || "Login failed");
     } finally {

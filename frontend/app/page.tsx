@@ -12,7 +12,7 @@ export default function Home() {
 
   useEffect(() => {
     setHasMounted(true);
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token = typeof window !== "undefined" ? sessionStorage.getItem("chess_token") : null;
     if (token) {
       apiService.setAuthToken(token);
       setIsAuthenticated(true);
@@ -21,7 +21,7 @@ export default function Home() {
 
   const handleLogin = (_username: string, token?: string) => {
     if (token) {
-      localStorage.setItem("token", token);
+      sessionStorage.setItem("chess_token", token);
       apiService.setAuthToken(token);
       setIsAuthenticated(true);
     }
