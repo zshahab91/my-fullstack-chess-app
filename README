@@ -3,3 +3,18 @@ cd backend && npm run start:dev
 
 # In another terminal
 cd frontend && npm run dev
+
+---
+
+## Tech Stack
+
+### Frontend
+- React
+- React Query
+- Next.js
+- TypeScript
+- Tailwind CSS
+
+### Backend
+- NestJS
+- MongoDB
