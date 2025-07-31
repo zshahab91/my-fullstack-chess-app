@@ -6,24 +6,38 @@ export default function GameStatus() {
   const [currentStatus, setCurrentStatus] = useState<{ color?: string; status?: string; message?: string } | null>(null);
 
   useEffect(() => {
-    // Log to verify effect runs
-    console.log("Setting up SSE connection to", `${API_BASE_URL}/events/sse`);
-    const source = new EventSource(`${API_BASE_URL}/events/sse`);
+    // Ensure this runs only on the client
+    if (typeof window === "undefined") return;
+
+    const token = sessionStorage.getItem("chess_token");
+    if (!token) {
+      console.warn("No chess_token found in sessionStorage");
+      return;
+    }
+
+    const url = `${API_BASE_URL}/events/sse?token=${token}`;
+    console.log("Connecting to SSE at:", url);
+
+    const source = new window.EventSource(url);
+
     source.onopen = () => {
       console.log("SSE connection opened");
     };
-    source.onerror = (err) => {
-      console.error("SSE connection error:", err);
-    };
+
     source.onmessage = (event) => {
       console.log("SSE message received:", event.data);
       try {
-        const data = JSON.parse(event.data);
+        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
         setCurrentStatus(data);
       } catch (e) {
-        console.log('SSE message (non-JSON):', event.data);
+        setCurrentStatus({ message: event.data });
       }
     };
+
+    source.onerror = (err) => {
+      console.error("SSE connection error:", err);
+    };
+
     return () => {
       console.log("Closing SSE connection");
       source.close();

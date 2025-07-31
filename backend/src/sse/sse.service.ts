@@ -1,18 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { Subject } from 'rxjs';
+import { MessageEvent } from '@nestjs/common';
 
 @Injectable()
 export class SseService {
-  private eventStream = new Subject<{ data: any }>();
+  // Store subjects per token
+  private subjects: { [token: string]: Subject<MessageEvent> } = {};
 
-  get stream$() {
-    return this.eventStream.asObservable();
+  getSubject(token: string): Subject<MessageEvent> {
+    if (!this.subjects[token]) {
+      this.subjects[token] = new Subject<MessageEvent>();
+    }
+    return this.subjects[token];
   }
-  sendEvent(data: any) {
-    console.log('Sending SSE event:', data);
-    this.eventStream.next({ data });
+
+  removeSubject(token: string) {
+    if (this.subjects[token]) {
+      this.subjects[token].complete();
+      delete this.subjects[token];
+    }
   }
-  closeStream() {
-    this.eventStream.complete();
+
+  sendEvent(token: string, data: any) {
+    console.log(`Sending event to token in SSE service with subjecrs: ${token}`, data, this.subjects);
+
+    if (this.subjects[token]) {
+      console.log(`Sending data to subject for token in if service: ${token}`, data);
+      this.subjects[token].next({ data });
+    }
   }
 }
