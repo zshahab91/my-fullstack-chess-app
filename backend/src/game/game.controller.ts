@@ -1,4 +1,4 @@
-import { Controller, Post, Req, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Req, Res, HttpStatus, Patch } from '@nestjs/common';
 import { GameService } from './game.service';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -117,6 +117,86 @@ export class GameController {
 
     return res.status(HttpStatus.OK).json({
       color: game.white === user.token ? 'white' : 'black',
+      status: game.status,
+    });
+  }
+  @Patch('move')
+  async move(@Req() req: any, @Res() res: Response) { 
+    const user = req.user; // user info from middleware
+    const { gameId, move } = req.body;
+
+    if (!gameId || !move) {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ error: 'Game ID and move are required' });
+    }
+
+    // Prepare db paths
+    const dbDir = path.join(__dirname, '..', 'db');
+    const dbPath = path.join(dbDir, 'games.json');
+
+    // Read existing gamesData
+    let gamesData: any[] = [];
+    try {
+      if (fs.existsSync(dbPath)) {
+        const gamesRaw = fs.readFileSync(dbPath, 'utf8');
+        gamesData = JSON.parse(gamesRaw) || [];
+      }
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: `Error reading chess data: ${error}` });
+    }
+
+    // Find the game by ID
+    const gameIndex = gamesData.findIndex((g) => g.id === gameId);
+    if (gameIndex === -1) {
+      return res.status(HttpStatus.NOT_FOUND).json({ error: 'Game not found' });
+    }
+
+    const game = gamesData[gameIndex];
+    if (game.status !== 'in-progress') {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: 'Game is not in progress',
+      });
+    }
+
+    // Check if the user is allowed to make a move
+    if (
+      (game.white === user.token && game.moves.length % 2 === 0) ||
+      (game.black === user.token && game.moves.length % 2 === 1)
+    ) {
+      return res.status(HttpStatus.FORBIDDEN).json({
+        error: 'It is not your turn to make a move',
+      });
+    }
+
+    // Update the game with the new move
+    game.moves.push(move);
+    game.board = this.gameService.applyMove(game.board, move);
+    game.updatedAt = new Date().toISOString();
+
+    // Save updated gamesData
+    try {
+      fs.writeFileSync(dbPath, JSON.stringify(gamesData, null, 2), 'utf8');
+      this.sseService.sendToClient(game.white, {
+        message: `Move made by ${user.nickName}`,
+        status: game.status,
+        board: game.board,
+      });
+      this.sseService.sendToClient(game.black, {
+        message: `Move made by ${user.nickName}`,
+        status: game.status,
+        board: game.board,
+      });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: `Error writing chess data: ${error}` });
+    }
+    return res.status(HttpStatus.OK).json({
+      message: 'Move made successfully',
+      board: game.board,
       status: game.status,
     });
   }
