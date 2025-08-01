@@ -17,29 +17,13 @@ export class GameController {
   @Post('start')
   async start(@Req() req: any, @Res() res: Response) {
     const user = req.user; // user info from middleware
+    // Use GameService to find a waiting game
+    let game = this.gameService.findWaitingGame();
 
-    // Prepare db paths
-    const dbDir = path.join(__dirname, '..', 'db');
-    const dbPath = path.join(dbDir, 'games.json');
-
-    // Read or initialize gamesData once
-    let gamesData: any[] = [];
-    try {
-      if (fs.existsSync(dbPath)) {
-        const gamesRaw = fs.readFileSync(dbPath, 'utf8');
-        gamesData = JSON.parse(gamesRaw) || [];
-      }
-    } catch (error) {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ error: `Error reading chess data: ${error}` });
-    }
-
-    // Find or create a game
-    let game = gamesData.find((g) => g.black === null);
     if (game) {
       if (game.white === user.token) {
-        gamesData.push(game);
+        // Use pushOrUpdateGame instead of pushing directly and saving manually
+        this.gameService.pushOrUpdateGame(game);
         this.sseService.sendToClient(game.white, {
           message:
             'You are now playing as White but we need a black player to start the game!',
@@ -59,7 +43,6 @@ export class GameController {
       game.updatedAt = new Date().toISOString();
       const blackPlayer = this.userService.findUserByToken(game.black);
       const whitePlayer = this.userService.findUserByToken(game.white);
-      // Send SSE event just to the white player
       this.sseService.sendToClient(game.white, {
         message: 'A new game has started, please join!',
         status: game.status,
@@ -75,23 +58,11 @@ export class GameController {
         opponent: whitePlayer ? whitePlayer.nickName : null,
         board: game.board,
       });
+      // Save updated game
+      this.gameService.pushOrUpdateGame(game);
     } else {
-      // Read initial board from chess.json
-      let initialBoard: any[] = [];
-      try {
-        const chessJsonPath = path.join(__dirname, '../..', 'db', 'chess.json');
-        if (fs.existsSync(chessJsonPath)) {
-          const chessRaw = fs.readFileSync(chessJsonPath, 'utf8');
-          const chessBoards = JSON.parse(chessRaw);
-          const initial = chessBoards.find((b: any) => b.id === 'initial');
-          if (initial && Array.isArray(initial.positions)) {
-            initialBoard = initial.positions;
-          }
-        }
-      } catch (error) {
-        initialBoard = [];
-      }
-
+      // Use GameService to get the initial board from chess.json
+      const initialBoard = this.gameService.findInitialBoard();
       game = {
         id: Date.now().toString(),
         white: user.token,
@@ -101,18 +72,8 @@ export class GameController {
         board: initialBoard,
         status: 'waiting',
       };
-      gamesData.push(game);
-    }
-    // Save updated gamesData
-    try {
-      if (!fs.existsSync(dbDir)) {
-        fs.mkdirSync(dbDir, { recursive: true });
-      }
-      fs.writeFileSync(dbPath, JSON.stringify(gamesData, null, 2), 'utf8');
-    } catch (error) {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ error: `Error writing chess data: ${error}` });
+      // Use pushOrUpdateGame for new game
+      this.gameService.pushOrUpdateGame(game);
     }
 
     return res.status(HttpStatus.OK).json({
@@ -121,14 +82,15 @@ export class GameController {
     });
   }
   @Patch('move')
-  async move(@Req() req: any, @Res() res: Response) { 
+  async move(@Req() req: any, @Res() res: Response) {
     const user = req.user; // user info from middleware
-    const { gameId, move } = req.body;
+    const { move } = req.body;
+    const userToken = user.token;
 
-    if (!gameId || !move) {
+    if (!move) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ error: 'Game ID and move are required' });
+        .json({ error: 'Move is required' });
     }
 
     // Prepare db paths
@@ -149,16 +111,19 @@ export class GameController {
     }
 
     // Find the game by ID
-    const gameIndex = gamesData.findIndex((g) => g.id === gameId);
+    const gameIndex = gamesData.findIndex(
+      (g) => g.white === userToken || g.black === userToken,
+    );
     if (gameIndex === -1) {
-      return res.status(HttpStatus.NOT_FOUND).json({ error: 'Game not found' });
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ error: 'Game not found for this user' });
     }
-
     const game = gamesData[gameIndex];
     if (game.status !== 'in-progress') {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        error: 'Game is not in progress',
-      });
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ error: 'Game is not in progress' });
     }
 
     // Check if the user is allowed to make a move
