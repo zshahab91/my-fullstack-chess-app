@@ -1,10 +1,12 @@
 // src/components/SseClient.tsx
 import { API_BASE_URL } from '@/app/services/apiService';
 import React, { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Message {
   message?: string;
   update?: string;
+  board?: any;
   [key: string]: any;
 }
 
@@ -15,6 +17,7 @@ interface Props {
 const GameStatus: React.FC<Props> = ({ token }) => {
   const [messages, setMessages] = useState<Message>({});
   const [connected, setConnected] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const eventSource = new EventSource(`${API_BASE_URL}/sse/stream?token=${token}`);
@@ -27,13 +30,18 @@ const GameStatus: React.FC<Props> = ({ token }) => {
     eventSource.onmessage = (event) => {
       console.log('Received SSE message:', event.data);
 
-      // Try to parse JSON, otherwise treat as string
       try {
         const data: Message = JSON.parse(event.data);
-        console.log('Parsed SSE 8 message:', event.data, data);
-        setMessages((prev) => ({ ...prev, ...data }));
+        // Save board in React Query if present
+        if (data.board) {
+          queryClient.setQueryData(['selectedBoard'], { positions: data.board });
+        }
+
+        // Replace all data in messages except board
+        const { board, ...rest } = data;
+        setMessages(rest);
       } catch (err) {
-        setMessages((prev) => ({ ...prev, message: event.data }));
+        setMessages({ message: event.data });
       }
     };
 
@@ -46,7 +54,7 @@ const GameStatus: React.FC<Props> = ({ token }) => {
     return () => {
       eventSource.close();
     };
-  }, [token]);
+  }, [token, queryClient]);
 
   return (
     <div className="p-4 border rounded">
@@ -54,7 +62,7 @@ const GameStatus: React.FC<Props> = ({ token }) => {
       <ul className="mt-4 list-disc pl-5 space-y-1">
         {Object.entries(messages).map(([key, msg], idx) => (
           <li key={idx} className="text-sm">
-            <strong>{key}:</strong> {msg}
+            <strong>{key}:</strong> {msg ? msg.toString() : '-'}
           </li>
         ))}
       </ul>

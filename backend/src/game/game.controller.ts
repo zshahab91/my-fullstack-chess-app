@@ -4,12 +4,14 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { Response } from 'express';
 import { SseService } from '../sse/sse.service'; // Import SseService
+import { UserService } from 'src/user/user.service';
 
 @Controller('game')
 export class GameController {
   constructor(
     private readonly gameService: GameService,
     private readonly sseService: SseService,
+    private readonly userService: UserService,
   ) {}
 
   @Post('start')
@@ -39,7 +41,8 @@ export class GameController {
       if (game.white === user.token) {
         gamesData.push(game);
         this.sseService.sendToClient(game.white, {
-          message:'You are now playing as White but we need a black player to start the game!',
+          message:
+            'You are now playing as White but we need a black player to start the game!',
           status: game.status,
           color: game.white === user.token ? 'white' : 'black',
           opponent: null,
@@ -54,20 +57,22 @@ export class GameController {
       game.black = user.token;
       game.status = 'in-progress';
       game.updatedAt = new Date().toISOString();
-
+      const blackPlayer = this.userService.findUserByToken(game.black);
+      const whitePlayer = this.userService.findUserByToken(game.white);
       // Send SSE event just to the white player
       this.sseService.sendToClient(game.white, {
         message: 'A new game has started, please join!',
         status: game.status,
         color: game.white === user.token ? 'white' : 'black',
-        opponent: user.nickName,
+        opponent: blackPlayer ? blackPlayer.nickName : null,
         board: game.board,
       });
       this.sseService.sendToClient(game.black, {
-        message:'You are now playing as Black, please wait for White to make a move!',
+        message:
+          'You are now playing as Black player, please wait for White to make a move!',
         status: game.status,
         color: game.white === user.token ? 'white' : 'black',
-        opponent: null,
+        opponent: whitePlayer ? whitePlayer.nickName : null,
         board: game.board,
       });
     } else {
@@ -112,7 +117,7 @@ export class GameController {
 
     return res.status(HttpStatus.OK).json({
       color: game.white === user.token ? 'white' : 'black',
-      status: game.status
+      status: game.status,
     });
   }
 }
