@@ -6,14 +6,14 @@ import GameStatus from "../gameStatus/gameStatus";
 
 export default function SidebarClient() {
   const [boards, setBoards] = useState<any[]>([]);
-
+  const token = sessionStorage.getItem("chess_token") || "";
   useEffect(() => {
     apiService.getAllBoards().then(setBoards);
   }, []);
 
   return (
     <aside className="w-full bg-gray-900 text-white p-4 rounded shadow h-full">
-      <GameStatus />
+      <GameStatus token={token} />
       {boards.length === 0 ? (
         <div className="text-center">No games found.</div>
       ) : (

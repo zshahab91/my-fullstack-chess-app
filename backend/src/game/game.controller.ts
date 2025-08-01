@@ -32,11 +32,20 @@ export class GameController {
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ error: `Error reading chess data: ${error}` });
     }
-
+    
     // Find or create a game
     let game = gamesData.find((g) => g.black === null);
+    this.sseService.sendToClient(user.token, { update: 'You have a new message that the game is waiting ' });
+
     if (game) {
       if (game.white === user.token) {
+        gamesData.push(game);
+        // this.sseService.sendEvent(game.white, {
+        //   message: 'A new game has started , please join!',
+        //   status: game.status,
+        //   color: 'when we have a game just with 1 player',
+        //   name: user.nickName || 'Player',
+        // });
         return res.status(HttpStatus.OK).json({
           color: 'white',
           status: game.status,
@@ -48,12 +57,13 @@ export class GameController {
       game.updatedAt = new Date().toISOString();
 
       // Send SSE event just to the white player
-      this.sseService.sendEvent(game.white, {
-        message: 'A new game has started, please join!',
-        status: game.status,
-        color: 'white',
-        name: user.nickName || 'Player',
-      });
+      // this.sseService.sendEvent(game.white, {
+      //   message: 'A new game has started, please join!',
+      //   status: game.status,
+      //   color: 'white',
+      //   name: user.nickName || 'Player',
+      // });
+
     } else {
       // Read initial board from chess.json
       let initialBoard: any[] = [];
@@ -79,17 +89,10 @@ export class GameController {
         createdAt: new Date().toISOString(),
         moves: [],
         board: initialBoard,
-        status: 'waiting',
+        status: 'waiting'
       };
       gamesData.push(game);
-       this.sseService.sendEvent(game.white, {
-        message: 'A new game has started, please join!',
-        status: game.status,
-        color: 'test',
-        name: user.nickName || 'Player',
-      });
     }
-
     // Save updated gamesData
     try {
       if (!fs.existsSync(dbDir)) {

@@ -1,32 +1,37 @@
+// sse.service.ts
 import { Injectable } from '@nestjs/common';
 import { Subject } from 'rxjs';
 import { MessageEvent } from '@nestjs/common';
 
 @Injectable()
 export class SseService {
-  // Store subjects per token
   private subjects: { [token: string]: Subject<MessageEvent> } = {};
 
-  getSubject(token: string): Subject<MessageEvent> {
+  getStream(token: string) {
     if (!this.subjects[token]) {
       this.subjects[token] = new Subject<MessageEvent>();
     }
-    return this.subjects[token];
+    console.log('Getting stream for token:', token);
+    console.log('subject:', this.subjects[token]);
+    return this.subjects[token].asObservable();
   }
 
-  removeSubject(token: string) {
-    if (this.subjects[token]) {
-      this.subjects[token].complete();
-      delete this.subjects[token];
-    }
-  }
+  sendToClient(token: string, data: any) {
+    // if (!this.subjects[token]) {
+    //   this.subjects[token] = new Subject<MessageEvent>();
+    // }
+    console.log('Sending to client:', token);
+    const subject = this.subjects[token];
+    console.log('subjects:', this.subjects[token]);
+    const messageEvent: MessageEvent = {
+      data: JSON.stringify(data),
+      type: 'message',
+    };
+    if (subject) {
+      console.log('subject is defined  ', messageEvent);
+      subject.next(messageEvent);
+      console.log('Message sent to client finally');
 
-  sendEvent(token: string, data: any) {
-    console.log(`Sending event to token in SSE service with subjecrs: ${token}`, data, this.subjects);
-
-    if (this.subjects[token]) {
-      console.log(`Sending data to subject for token in if service: ${token}`, data);
-      this.subjects[token].next({ data });
     }
   }
 }

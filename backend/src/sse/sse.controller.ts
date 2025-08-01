@@ -1,47 +1,18 @@
-import { Controller, Sse, Req, MessageEvent } from '@nestjs/common';
-import { Request } from 'express';
-import { Observable, Subject } from 'rxjs';
+import { BadRequestException, Controller, Query, Sse, MessageEvent } from "@nestjs/common";
+import { SseService } from "./sse.service";
+import { Observable } from "rxjs";
 
-@Controller('events')
+// sse.controller.ts
+@Controller('sse')
 export class SseController {
-  // Store subjects per token
-  private subjects: { [token: string]: Subject<MessageEvent> } = {};
+  constructor(private readonly sseService: SseService) {}
 
-  @Sse('sse')
-  sse(@Req() req: Request): Observable<MessageEvent> {
-    const token = req.query.token as string;
+  @Sse('stream')
+  stream(@Query('token') token: string): Observable<MessageEvent> {
     if (!token) {
-      // If no token, emit an error event and complete
-      const errorSubject = new Subject<MessageEvent>();
-      errorSubject.next({ data: { error: 'Token required as query param' } });
-      errorSubject.complete();
-      return errorSubject.asObservable();
+      throw new BadRequestException('Token is required');
     }
-
-    // Create a subject for this connection if not exists
-    if (!this.subjects[token]) {
-      this.subjects[token] = new Subject<MessageEvent>();
-    }
-
-    // Optionally: send a welcome event
-    this.subjects[token].next({ data: { message: 'SSE connected', token } });
-
-    // Clean up when connection closes
-    req.on('close', () => {
-      this.subjects[token].complete();
-      delete this.subjects[token];
-    });
-
-    return this.subjects[token].asObservable();
+    return this.sseService.getStream(token);
   }
-
-  // Example: method to send event to a specific token
-  sendEvent(token: string, data: any) {
-    console.log(`Sending event to token in SSE controller: ${token}`, data);
-    if (this.subjects[token]) {
-            console.log(`Sending data to subject for token in if controller: ${token}`, data);
-
-      this.subjects[token].next({ data });
-    }
-  }
+  
 }
