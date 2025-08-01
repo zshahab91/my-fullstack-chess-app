@@ -32,20 +32,19 @@ export class GameController {
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ error: `Error reading chess data: ${error}` });
     }
-    
+
     // Find or create a game
     let game = gamesData.find((g) => g.black === null);
-    this.sseService.sendToClient(user.token, { update: 'You have a new message that the game is waiting ' });
-
     if (game) {
       if (game.white === user.token) {
         gamesData.push(game);
-        // this.sseService.sendEvent(game.white, {
-        //   message: 'A new game has started , please join!',
-        //   status: game.status,
-        //   color: 'when we have a game just with 1 player',
-        //   name: user.nickName || 'Player',
-        // });
+        this.sseService.sendToClient(game.white, {
+          message:'You are now playing as White but we need a black player to start the game!',
+          status: game.status,
+          color: game.white === user.token ? 'white' : 'black',
+          opponent: null,
+        });
+
         return res.status(HttpStatus.OK).json({
           color: 'white',
           status: game.status,
@@ -57,13 +56,20 @@ export class GameController {
       game.updatedAt = new Date().toISOString();
 
       // Send SSE event just to the white player
-      // this.sseService.sendEvent(game.white, {
-      //   message: 'A new game has started, please join!',
-      //   status: game.status,
-      //   color: 'white',
-      //   name: user.nickName || 'Player',
-      // });
-
+      this.sseService.sendToClient(game.white, {
+        message: 'A new game has started, please join!',
+        status: game.status,
+        color: game.white === user.token ? 'white' : 'black',
+        opponent: user.nickName,
+        board: game.board,
+      });
+      this.sseService.sendToClient(game.black, {
+        message:'You are now playing as Black, please wait for White to make a move!',
+        status: game.status,
+        color: game.white === user.token ? 'white' : 'black',
+        opponent: null,
+        board: game.board,
+      });
     } else {
       // Read initial board from chess.json
       let initialBoard: any[] = [];
@@ -78,7 +84,6 @@ export class GameController {
           }
         }
       } catch (error) {
-        // fallback to empty board if error
         initialBoard = [];
       }
 
@@ -89,7 +94,7 @@ export class GameController {
         createdAt: new Date().toISOString(),
         moves: [],
         board: initialBoard,
-        status: 'waiting'
+        status: 'waiting',
       };
       gamesData.push(game);
     }
@@ -107,8 +112,7 @@ export class GameController {
 
     return res.status(HttpStatus.OK).json({
       color: game.white === user.token ? 'white' : 'black',
-      status: game.status,
-      board: game.board,
+      status: game.status
     });
   }
 }

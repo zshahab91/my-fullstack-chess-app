@@ -13,7 +13,7 @@ interface Props {
 }
 
 const GameStatus: React.FC<Props> = ({ token }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message>({});
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
@@ -30,9 +30,10 @@ const GameStatus: React.FC<Props> = ({ token }) => {
       // Try to parse JSON, otherwise treat as string
       try {
         const data: Message = JSON.parse(event.data);
-        setMessages((prev) => [...prev, data]);
+        console.log('Parsed SSE 8 message:', event.data, data);
+        setMessages((prev) => ({ ...prev, ...data }));
       } catch (err) {
-        setMessages((prev) => [...prev, { message: event.data }]);
+        setMessages((prev) => ({ ...prev, message: event.data }));
       }
     };
 
@@ -49,12 +50,11 @@ const GameStatus: React.FC<Props> = ({ token }) => {
 
   return (
     <div className="p-4 border rounded">
-      <h2 className="text-lg font-bold mb-2">SSE Stream for Token: {token}</h2>
       <p>Status: {connected ? '🟢 Connected' : '🔴 Disconnected'}</p>
       <ul className="mt-4 list-disc pl-5 space-y-1">
-        {messages.map((msg, idx) => (
-          <li key={idx} className="text-sm text-gray-100">
-            {JSON.stringify(msg)}
+        {Object.entries(messages).map(([key, msg], idx) => (
+          <li key={idx} className="text-sm">
+            <strong>{key}:</strong> {msg}
           </li>
         ))}
       </ul>

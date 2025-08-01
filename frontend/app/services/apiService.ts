@@ -23,7 +23,7 @@ export const apiService = {
   },
   login: async (nickName: string) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+      const response = await axios.post(`${API_BASE_URL}/user/login`, {
         nickName,
       });
       const { token } = response.data;

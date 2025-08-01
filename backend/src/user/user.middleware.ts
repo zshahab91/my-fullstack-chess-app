@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 @Injectable()
-export class AuthMiddleware implements NestMiddleware {
+export class UserMiddleware implements NestMiddleware {
   use(req: any, res: any, next: () => void) {
     const authHeader = req.headers['authorization'];
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

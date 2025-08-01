@@ -1,13 +1,13 @@
 import { Controller, Post, Body, Res, HttpStatus } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import * as fs from 'fs';
+import { UserService } from './user.service';
 
-@Controller('auth')
-export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+@Controller('user')
+export class UserController {
+  constructor(private readonly userService: UserService) {}
 
   @Post('login')
   async login(@Body() body: { nickName: string }, @Res() res: Response) {
