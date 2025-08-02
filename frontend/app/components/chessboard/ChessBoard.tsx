@@ -80,7 +80,41 @@ export default function ChessBoard() {
     e.preventDefault();
     const fromSquare = e.dataTransfer.getData("text/plain");
     if (fromSquare && fromSquare !== square) {
-      await handleSquareClick(square);
+      const fromPiece = getPieceAt(fromSquare);
+      const targetPiece = getPieceAt(square);
+
+      // If destination has a piece of different color, allow capture
+      if (
+        fromPiece &&
+        targetPiece &&
+        fromPiece.color !== targetPiece.color
+      ) {
+        const move = {
+          from: fromSquare,
+          to: square,
+          piece: fromPiece.piece,
+          color: fromPiece.color,
+        };
+        try {
+          const data = await apiService.movePiece(move);
+          if (data.board) {
+            queryClient.setQueryData(["selectedBoard"], { positions: data.board });
+          } else if (data.error) {
+            alert(data.error || "Move failed");
+          }
+        } catch (err) {
+          alert("Network error");
+        }
+        setSelectedSquare(null);
+        return;
+      }
+
+      // If destination is empty, allow normal move
+      if (fromPiece && !targetPiece) {
+        await handleSquareClick(square);
+        setSelectedSquare(null);
+        return;
+      }
     }
     setSelectedSquare(null);
   };

@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 export default function LoginPage() {
     const router = useRouter();
 
-    const handleLogin = (token?: string) => {
+    const handleLogin = (nickName: string, token: string) => {
         if (token) {
             sessionStorage.setItem("chess_token", token);
+            // sessionStorage
             apiService.setAuthToken(token);
+
             router.replace("/"); // Use Next.js router for navigation
         } else {
             console.error("Login failed, no token received");
@@ -20,7 +22,7 @@ export default function LoginPage() {
     const handleLoginSubmit = async (nickName: string) => {
         try {
             const data = await apiService.login(nickName);
-            handleLogin(data.token);
+            handleLogin(nickName,data.token);
         } catch {
             // error handled in LoginForm
         }

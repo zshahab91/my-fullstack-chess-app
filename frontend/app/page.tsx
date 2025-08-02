@@ -21,13 +21,13 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="items-center justify-items-center min-h-screen  pb-20 gap-16 grid grid-rows-[auto_1fr_auto]">
-      <Header />
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        {isAuthenticated ? (
+    isAuthenticated ? (
+      <div className="items-center justify-items-center min-h-screen  pb-20 gap-16 grid grid-rows-[auto_1fr_auto]">
+        <Header />
+        <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
           <Chess />
-        ) : null}
-      </main>
-    </div>
+        </main>
+      </div>
+    ) : null
   );
 }
