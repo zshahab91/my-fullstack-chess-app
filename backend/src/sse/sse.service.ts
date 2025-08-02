@@ -15,7 +15,6 @@ export class SseService {
   }
 
   sendToClient(token: string, data: any) {
-    console.log(`Sending SSE to client with token: ${token}`, data);
     const subject = this.subjects[token];
     const messageEvent: MessageEvent = {
       data: JSON.stringify(data),

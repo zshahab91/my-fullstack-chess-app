@@ -89,6 +89,7 @@ export class GameController {
   }
   @Patch('move')
   async move(@Req() req: any, @Res() res: Response) {
+    console.log("Move request received");
     const user = req.user; // user info from middleware
     const { move } = req.body;
     const userToken = user.token;
