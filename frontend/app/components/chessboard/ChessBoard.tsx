@@ -123,9 +123,15 @@ export default function ChessBoard() {
     e.preventDefault();
   };
 
+  // Add this at the top of your component, after hooks
+  const userColor = queryClient.getQueryData<{ color: string }>(["gameStatus"])?.color || "white";
+
+  // Flip the boardSquares if user is black
+  const squaresToRender = userColor === "black" ? [...boardSquares].reverse() : boardSquares;
+
   return (
     <div className="grid grid-cols-8 grid-rows-8 border-2 border-gray-700 w-160 h-160">
-      {boardSquares.map((square, idx) => {
+      {squaresToRender.map((square, idx) => {
         const piece = getPieceAt(square);
         const isDark = (Math.floor(idx / 8) + (idx % 8)) % 2 === 1;
         const isSelected = selectedSquare === square;

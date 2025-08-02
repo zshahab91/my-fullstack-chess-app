@@ -14,7 +14,7 @@ export default function SidebarClient() {
   return (
     <aside className="w-full bg-gray-900 text-white p-4 rounded shadow h-full">
       <GameStatus token={token} />
-      {boards.length === 0 ? (
+      {/* {boards.length === 0 ? (
         <div className="text-center">No games found.</div>
       ) : (
         <div className="grid grid-cols-4 gap-2">
@@ -22,7 +22,7 @@ export default function SidebarClient() {
             <BoardButton key={board.id} id={board.id} />
           ))}
         </div>
-      )}
+      )} */}
     </aside>
   );
 }

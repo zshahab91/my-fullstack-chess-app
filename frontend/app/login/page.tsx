@@ -9,7 +9,7 @@ export default function LoginPage() {
     const handleLogin = (nickName: string, token: string) => {
         if (token) {
             sessionStorage.setItem("chess_token", token);
-            // sessionStorage
+            sessionStorage.setItem("chess_nickName", nickName);
             apiService.setAuthToken(token);
 
             router.replace("/"); // Use Next.js router for navigation

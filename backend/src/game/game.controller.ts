@@ -176,13 +176,17 @@ export class GameController {
     try {
       fs.writeFileSync(dbPath, JSON.stringify(gamesData, null, 2), 'utf8');
       this.sseService.sendToClient(game.white, {
-        message: `Move made by ${user.nickName}`,
-        status: game.status,
+        message:
+          game.white === user.token
+            ? 'Please wait for your opponent to move'
+            : `Move made by ${user.nickName}`,
         board: game.board,
       });
       this.sseService.sendToClient(game.black, {
-        message: `Move made by ${user.nickName}`,
-        status: game.status,
+        message:
+          game.black === user.token
+            ? 'Please wait for your opponent to move'
+            : `Move made by ${user.nickName}`,
         board: game.board,
       });
     } catch (error) {
