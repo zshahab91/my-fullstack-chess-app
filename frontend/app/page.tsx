@@ -12,7 +12,7 @@ export default function Home() {
 
   useEffect(() => {
     setHasMounted(true);
-    const token = typeof window !== "undefined" ? sessionStorage.getItem("chess_token") : null;
+    const token = sessionStorage.getItem("chess_token");
     if (token) {
       apiService.setAuthToken(token);
       setIsAuthenticated(true);
@@ -27,29 +27,28 @@ export default function Home() {
     }
   };
 
+  // Separated login logic
+  const handleLoginSubmit = async (username: string) => {
+    try {
+      const data = await apiService.login(username);
+      handleLogin(username, data.token);
+    } catch {
+      // error handled in LoginForm
+    }
+  };
+
   if (!hasMounted) {
-    // Prevent hydration mismatch by not rendering until client is ready
     return null;
   }
 
   return (
     <div className="items-center justify-items-center min-h-screen  pb-20 gap-16 grid grid-rows-[auto_1fr_auto]">
       <Header />
-     <p>isAuthenticated: {isAuthenticated ? "Yes" : "No"}</p>
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         {isAuthenticated ? (
-          <Chess/>
+          <Chess />
         ) : (
-          <LoginForm
-            onLogin={async (username) => {
-              try {
-                const data = await apiService.login(username);
-                handleLogin(username, data.token);
-              } catch {
-                // error handled in LoginForm
-              }
-            }}
-          />
+          <LoginForm onLogin={handleLoginSubmit} />
         )}
       </main>
     </div>

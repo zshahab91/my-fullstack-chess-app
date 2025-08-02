@@ -13,10 +13,6 @@ export default function Chess() {
             const res = await apiService.startGame();
             // Save response data in React Query
             queryClient.setQueryData(["gameStatus"], res);
-            queryClient.setQueryData(["selectedBoard"], {
-                id: 'initial',
-                positions: res.board,
-            });
         };
         startGame();
     }, [queryClient]);

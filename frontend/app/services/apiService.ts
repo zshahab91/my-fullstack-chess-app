@@ -46,4 +46,12 @@ export const apiService = {
       throw error;
     }
   },
+  movePiece: async (move: { from: string; to: string; piece: string; color: string }) => {
+    try {
+      const response = await axios.patch(`${API_BASE_URL}/game/move`, { move });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };

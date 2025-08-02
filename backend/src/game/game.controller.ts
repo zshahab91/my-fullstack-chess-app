@@ -44,17 +44,16 @@ export class GameController {
       const blackPlayer = this.userService.findUserByToken(game.black);
       const whitePlayer = this.userService.findUserByToken(game.white);
       this.sseService.sendToClient(game.white, {
-        message: 'A new game has started, please join!',
+        message: 'A new game has started, please start!',
         status: game.status,
-        color: game.white === user.token ? 'white' : 'black',
+        color: 'white',
         opponent: blackPlayer ? blackPlayer.nickName : null,
         board: game.board,
       });
       this.sseService.sendToClient(game.black, {
-        message:
-          'You are now playing as Black player, please wait for White to make a move!',
+        message:'You are now playing as Black player, please wait for White to make a move!',
         status: game.status,
-        color: game.white === user.token ? 'white' : 'black',
+        color: 'black',
         opponent: whitePlayer ? whitePlayer.nickName : null,
         board: game.board,
       });
@@ -74,6 +73,13 @@ export class GameController {
       };
       // Use pushOrUpdateGame for new game
       this.gameService.pushOrUpdateGame(game);
+      this.sseService.sendToClient(game.white, {
+        message: 'You are now waiting for a Black player to join!',
+        status: game.status,
+        color: 'white',
+        opponent: null,
+        board: game.board,
+      });
     }
 
     return res.status(HttpStatus.OK).json({
@@ -128,8 +134,8 @@ export class GameController {
 
     // Check if the user is allowed to make a move
     if (
-      (game.white === user.token && game.moves.length % 2 === 0) ||
-      (game.black === user.token && game.moves.length % 2 === 1)
+      (game.white === user.token && game.moves.length % 2 === 1) ||
+      (game.black === user.token && game.moves.length % 2 === 0)
     ) {
       return res.status(HttpStatus.FORBIDDEN).json({
         error: 'It is not your turn to make a move',

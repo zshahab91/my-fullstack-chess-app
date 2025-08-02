@@ -28,8 +28,6 @@ const GameStatus: React.FC<Props> = ({ token }) => {
     };
 
     eventSource.onmessage = (event) => {
-      console.log('Received SSE message:', event.data);
-
       try {
         const data: Message = JSON.parse(event.data);
         // Save board in React Query if present
@@ -46,7 +44,6 @@ const GameStatus: React.FC<Props> = ({ token }) => {
     };
 
     eventSource.onerror = (err) => {
-      console.error('SSE error:', err);
       eventSource.close();
       setConnected(false);
     };

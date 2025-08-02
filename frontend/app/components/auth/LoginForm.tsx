@@ -42,7 +42,7 @@ export default function LoginForm({ onLogin }: { onLogin?: (nickName: string) =>
       >
         Enter
       </button>
-      {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+      {error && <span className="text-red-500 text-sm text-center">{error}</span>}
     </form>
   );
 }
