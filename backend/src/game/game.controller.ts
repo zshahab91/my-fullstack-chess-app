@@ -17,18 +17,46 @@ export class GameController {
   @Post('start')
   async start(@Req() req: any, @Res() res: Response) {
     const user = req.user; // user info from middleware
-    // Use GameService to find a waiting game
-    let game = this.gameService.findWaitingGame();
+
+    // First, check if the user is already in a game
+    let game = this.gameService.findGameByToken(user.token);
+
+    if (game && game.black && game.white) {
+      // User is already in a game, return their color and status
+      const blackPlayer = this.userService.findUserByToken(game.black);
+      const whitePlayer = this.userService.findUserByToken(game.white);
+      this.sseService.sendToClient(game.white, {
+        message: 'The game has started, please start!',
+        status: game.status,
+        color: 'white',
+        opponent: blackPlayer ? blackPlayer.nickName : null,
+        board: game.board,
+      });
+      this.sseService.sendToClient(game.black, {
+        message:
+          'You are now playing as black player, please wait for white to make a move!',
+        status: game.status,
+        color: 'black',
+        opponent: whitePlayer ? whitePlayer.nickName : null,
+        board: game.board,
+      });
+      return res.status(HttpStatus.OK).json({
+        color: game.white === user.token ? 'white' : 'black',
+        status: game.status,
+      });
+    }
+
+    // If not in a game, find a waiting game
+    game = this.gameService.findWaitingGame();
 
     if (game) {
       if (game.white === user.token) {
-        // Use pushOrUpdateGame instead of pushing directly and saving manually
         this.gameService.pushOrUpdateGame(game);
         this.sseService.sendToClient(game.white, {
           message:
-            'You are now playing as White but we need a black player to start the game!',
+            'You are now playing as white but we need a black player to start the game!',
           status: game.status,
-          color: game.white === user.token ? 'white' : 'black',
+          color: 'white',
           opponent: null,
         });
 
@@ -51,16 +79,16 @@ export class GameController {
         board: game.board,
       });
       this.sseService.sendToClient(game.black, {
-        message:'You are now playing as Black player, please wait for White to make a move!',
+        message:
+          'You are now playing as black player, please wait for white to make a move!',
         status: game.status,
         color: 'black',
         opponent: whitePlayer ? whitePlayer.nickName : null,
         board: game.board,
       });
-      // Save updated game
       this.gameService.pushOrUpdateGame(game);
     } else {
-      // Use GameService to get the initial board from chess.json
+      // No waiting game, create a new one
       const initialBoard = this.gameService.findInitialBoard();
       game = {
         id: Date.now().toString(),
@@ -71,7 +99,6 @@ export class GameController {
         board: initialBoard,
         status: 'waiting',
       };
-      // Use pushOrUpdateGame for new game
       this.gameService.pushOrUpdateGame(game);
       this.sseService.sendToClient(game.white, {
         message: 'You are now waiting for a Black player to join!',
@@ -89,7 +116,6 @@ export class GameController {
   }
   @Patch('move')
   async move(@Req() req: any, @Res() res: Response) {
-    console.log("Move request received");
     const user = req.user; // user info from middleware
     const { move } = req.body;
     const userToken = user.token;
@@ -99,7 +125,6 @@ export class GameController {
         .status(HttpStatus.BAD_REQUEST)
         .json({ error: 'Move is required' });
     }
-
     // Prepare db paths
     const dbDir = path.join(__dirname, '..', 'db');
     const dbPath = path.join(dbDir, 'games.json');
@@ -142,7 +167,6 @@ export class GameController {
         error: 'It is not your turn to make a move',
       });
     }
-
     // Update the game with the new move
     game.moves.push(move);
     game.board = this.gameService.applyMove(game.board, move);
