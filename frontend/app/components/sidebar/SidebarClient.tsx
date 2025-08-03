@@ -1,15 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
-import { apiService } from "@/app/services/apiService";
-import BoardButton from "../boardButton/BoardButton";
+// import { useEffect, useState } from "react";
+// import { apiService } from "@/app/services/apiService";
+// import BoardButton from "../boardButton/BoardButton";
 import GameStatus from "../gameStatus/gameStatus";
 
 export default function SidebarClient() {
-  const [boards, setBoards] = useState<any[]>([]);
+  // const [boards, setBoards] = useState<any[]>([]);
   const token = sessionStorage.getItem("chess_token") || "";
-  useEffect(() => {
-    apiService.getAllBoards().then(setBoards);
-  }, []);
+  // useEffect(() => {
+  //   apiService.getAllBoards().then(setBoards);
+  // }, []);
 
   return (
     <aside className="w-full bg-gray-900 text-white p-4 rounded shadow h-full">

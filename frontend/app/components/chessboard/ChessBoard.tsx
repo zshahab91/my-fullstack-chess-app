@@ -47,7 +47,7 @@ export default function ChessBoard() {
         from: selectedSquare,
         to: square,
         piece: selectedPiece.piece,
-        color: selectedPiece.color,
+        color: selectedPiece.color as "white" | "black",
       };
       try {
         const data = await apiService.movePiece(move);
@@ -93,7 +93,7 @@ export default function ChessBoard() {
           from: fromSquare,
           to: square,
           piece: fromPiece.piece,
-          color: fromPiece.color,
+          color: fromPiece.color as "white" | "black",
         };
         try {
           const data = await apiService.movePiece(move);

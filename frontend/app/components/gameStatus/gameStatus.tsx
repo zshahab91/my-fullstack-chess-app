@@ -2,19 +2,10 @@
 import { API_BASE_URL } from '@/app/services/apiService';
 import React, { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { Message } from '@/app/interfaces/chessType';
 
-interface Message {
-  message?: string;
-  update?: string;
-  board?: any;
-  [key: string]: any;
-}
 
-interface Props {
-  token: string;
-}
-
-const GameStatus: React.FC<Props> = ({ token }) => {
+const GameStatus: React.FC<{ token: string }> = ({ token }) => {
   const [messages, setMessages] = useState<Message>({});
   const [connected, setConnected] = useState(false);
   const queryClient = useQueryClient();

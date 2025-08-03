@@ -12,6 +12,24 @@ export type Board = {
   id: string;
   positions: Piece[];
 };
+export interface Message {
+  message?: string;
+  update?: string;
+  board?: any;
+  [key: string]: any;
+}
+export interface GameResponse {
+  color: 'white' | 'black';
+  status: 'waiting' | 'in-progress' | 'finished';
+  board: Piece[];
+  opponent: string | null;
+}
+export interface Move {
+  from: string;
+  to: string;
+  piece: string;
+  color: 'white' | 'black';
+}
 
 export const boardSquares = [
   ...Array(8)

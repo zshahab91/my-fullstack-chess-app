@@ -1,5 +1,6 @@
 import axios from "axios";
 import { setAuthToken as setInterceptorAuthToken } from "./apiInterceptor";
+import type { GameResponse, Move } from '../interfaces/chessType';
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"; // adjust port if needed
 
@@ -38,7 +39,7 @@ export const apiService = {
     }
   },
   setAuthToken,
-  startGame: async () => {
+  startGame: async (): Promise<GameResponse> => {
     try {
       const response = await axios.post(`${API_BASE_URL}/game/start`);
       return response.data;
@@ -46,7 +47,7 @@ export const apiService = {
       throw error;
     }
   },
-  movePiece: async (move: { from: string; to: string; piece: string; color: string }) => {
+  movePiece: async (move: Move) => {
     try {
       const response = await axios.patch(`${API_BASE_URL}/game/move`, { move });
       return response.data;
@@ -55,3 +56,4 @@ export const apiService = {
     }
   },
 };
+

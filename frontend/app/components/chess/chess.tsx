@@ -11,7 +11,6 @@ export default function Chess() {
         // Call startGame when Chess component mounts
         const startGame = async () => {
             const res = await apiService.startGame();
-            // Save response data in React Query
             queryClient.setQueryData(["gameStatus"], res);
         };
         startGame();
