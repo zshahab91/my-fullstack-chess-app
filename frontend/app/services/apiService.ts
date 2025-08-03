@@ -1,7 +1,7 @@
 import axios from "axios";
 import { setAuthToken as setInterceptorAuthToken } from "./apiInterceptor";
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"; // adjust port if needed
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"; // adjust port if needed
 
 
 const setAuthToken = (token: string) => {
