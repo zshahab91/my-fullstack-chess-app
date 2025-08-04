@@ -81,5 +81,16 @@ export const apiService = {
       throw new Error(cleanErrorMessage(error.message || "An error occurred while moving the piece"));
     }
   },
+  getGameByToken: async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/game/token`);
+      return response.data;
+    } catch (error: ApiError) {
+      if (error.response && error.response.data && error.response.data.error) {
+        throw new Error(cleanErrorMessage(error.response.data.error));
+      }
+      throw new Error(cleanErrorMessage(error.message || "An error occurred while fetching the game by token"));
+    }
+  },
 };
 

@@ -3,6 +3,7 @@ import { API_BASE_URL } from '@/app/services/apiService';
 import React, { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Message } from '@/app/interfaces/chessType';
+import { apiService } from "@/app/services/apiService";
 
 
 const GameStatus: React.FC<{ token: string }> = ({ token }) => {
@@ -11,17 +12,31 @@ const GameStatus: React.FC<{ token: string }> = ({ token }) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    // 1. Fetch current game state on mount
+    const fetchGame = async () => {
+      try {
+        const data = await apiService.getGameByToken(); // or use gameId if that's your identifier
+        if (data.board) {
+          queryClient.setQueryData(['selectedBoard'], { positions: data.board });
+        }
+        // Set other initial messages if needed
+        setMessages({ status: data.status, ...data });
+      } catch (err) {
+        setMessages({ message: "Failed to load game state" });
+      }
+    };
+    fetchGame();
+
+    // 2. SSE connection as before
     const eventSource = new EventSource(`${API_BASE_URL}/sse/stream?token=${token}`);
 
     eventSource.onopen = () => {
-      console.log('SSE connection opened');
       setConnected(true);
     };
 
     eventSource.onmessage = (event) => {
       try {
         const data: Message = JSON.parse(event.data);
-        console.log('Received SSE message:', data);
         // Save board in React Query if present
         if (data.board) {
           queryClient.setQueryData(['selectedBoard'], { positions: data.board });

@@ -82,7 +82,7 @@ export class GameService {
     }
     return [];
   }
-  getGameResponse(game: any, userToken: string): GameResponseDto {
+  getGameResponse(game: GameDto, userToken: string): GameResponseDto {
     return {
       color: game.white === userToken ? 'white' : 'black',
       status: game.status,
@@ -178,5 +178,10 @@ export class GameService {
       return 'white'; // Default to white if no moves exist
     }
     return (game.moves?.length ?? 0) % 2 === 0 ? 'white' : 'black';
+  }
+
+  findGameById(id: string) {
+    const games = this.readGames();
+    return games.find((g) => g.id === id) || null;
   }
 }
