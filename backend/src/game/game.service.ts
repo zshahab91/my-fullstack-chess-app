@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
 import { GameResponseDto } from './dto/game-response.dto';
 import { GameDto, MoveDto } from './dto/game.dto';
 import { StartGameRequestDto } from './dto/start-game-request.dto';
 import { UserService } from 'src/user/user.service';
+import { Chess } from 'chess.js';
 
 @Injectable()
 export class GameService {
@@ -37,11 +38,9 @@ export class GameService {
   }
 
   private writeGames(games: any[]) {
-    console.log('Writing games.json with', games.length, 'games');
     this.ensureDbDir();
     try {
       fs.writeFileSync(this.dbPath, JSON.stringify(games, null, 2), 'utf8');
-      console.log('games.json updated:', games.length, 'games');
     } catch (err) {
       console.error('Failed to write games.json:', err);
     }
@@ -58,7 +57,6 @@ export class GameService {
   }
 
   pushOrUpdateGame(game: any) {
-    console.log('Pushing or updating game:', game);
     const games = this.readGames();
     const idx = games.findIndex((g) => g.id === game.id);
     if (idx !== -1) {
@@ -66,7 +64,6 @@ export class GameService {
     } else {
       games.push(game);
     }
-    console.log('Updated games.json with', games.length, 'games');
     this.writeGames(games);
   }
 
@@ -85,27 +82,6 @@ export class GameService {
     }
     return [];
   }
-
-  applyMove(board: any[], move: MoveDto) {
-    // Deep copy the board to avoid mutation
-    const newBoard = board.map((piece: any) => ({ ...piece }));
-
-    // Remove the piece from the "from" position
-    const fromIndex = newBoard.findIndex((p: any) => p.position === move.from);
-    if (fromIndex === -1) return newBoard; // Invalid move
-
-    // Remove any piece at the "to" position (capture)
-    const toIndex = newBoard.findIndex((p: any) => p.position === move.to);
-    if (toIndex !== -1) {
-      newBoard.splice(toIndex, 1);
-    }
-
-    // Move the piece
-    newBoard[fromIndex].position = move.to;
-
-    return newBoard;
-  }
-
   getGameResponse(game: any, userToken: string): GameResponseDto {
     return {
       color: game.white === userToken ? 'white' : 'black',
@@ -117,64 +93,55 @@ export class GameService {
     };
   }
 
-  updateGameWithMove(userToken: string, move: MoveDto) {
-    const games = this.readGames();
-    const gameIndex = games.findIndex(
-      (g) => g.white === userToken || g.black === userToken,
-    );
-    if (gameIndex === -1) {
-      throw new Error('Game not found for this user');
-    }
-    const game = games[gameIndex];
-    if (game.status !== 'in-progress') {
-      throw new Error('Game is not in progress');
-    }
-    // Check turn logic here if needed
-
-    game.moves.push(move);
-    game.board = this.applyMove(game.board, move);
-    game.updatedAt = new Date().toISOString();
-    games[gameIndex] = game;
-    this.writeGames(games);
-    return game;
-  }
-
   async makeMove(move: MoveDto, userToken: string): Promise<{ game: any; user: any }> {
-    // Find the game for this user
     const games = this.readGames();
     const gameIndex = games.findIndex(
       (g) => g.white === userToken || g.black === userToken,
     );
     if (gameIndex === -1) {
-      throw { status: 404, message: 'Game not found for this user' };
+      throw new HttpException('Game not found for this user', HttpStatus.NOT_FOUND);
     }
     const game = games[gameIndex];
 
-    // Validate turn (optional: add your own logic)
+    // Validate turn
     const isWhiteTurn = game.moves.length % 2 === 0;
     if (
       (isWhiteTurn && game.white !== userToken) ||
       (!isWhiteTurn && game.black !== userToken)
     ) {
-      throw { status: 403, message: 'It is not your turn to move' };
+      throw new HttpException('It is not your turn to move', HttpStatus.FORBIDDEN);
     }
 
-    // Apply the move (implement your own logic in applyMove)
+    const chess = new Chess(game.fen || undefined);
+
+    // Validate and make the move
+    const result = chess.move({ from: move.from, to: move.to, promotion: 'q' });
+    if (!result) {
+      console.error('Invalid move attempted:', move);
+      throw new HttpException('Invalid move according to chess rules', HttpStatus.BAD_REQUEST);
+    }
+
+    // Update game state
     game.moves.push(move);
-    game.board = this.applyMove(game.board, move);
+    game.board = chess.board().flat().filter(Boolean).map((p: any) => ({
+      piece: p.type,
+      color: p.color,
+      position: p.square,
+    }));
+    game.fen = chess.fen();
+    game.status = chess.isGameOver() ? 'finished' : 'in-progress';
     game.updatedAt = new Date().toISOString();
 
-    // Save the updated game
     games[gameIndex] = game;
     this.writeGames(games);
 
-    // Get user info
     const user = this.userService.findUserByToken(userToken);
 
     return { game, user };
   }
 
-  startOrJoinGame(token: string): { game: any; isNew: boolean } {
+  startOrJoinGame(startGameDto: StartGameRequestDto): { game: any; isNew: boolean } {
+    const token = startGameDto.token;
     let game = this.findGameByToken(token);
     if (game) {
       return { game, isNew: false };
@@ -207,6 +174,9 @@ export class GameService {
   }
 
   getTurn(game: GameDto): 'white' | 'black' {
+    if (!game || !game.moves) {
+      return 'white'; // Default to white if no moves exist
+    }
     return (game.moves?.length ?? 0) % 2 === 0 ? 'white' : 'black';
   }
 }

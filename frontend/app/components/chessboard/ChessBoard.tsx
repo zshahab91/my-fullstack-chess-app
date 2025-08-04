@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { boardSquares, ChessBoardProps } from "@/app/interfaces/chessType";
 import { getPieceSymbol } from "@/app/utils/global";
 import { apiService } from "@/app/services/apiService";
+import { toast } from "react-toastify";
 
 
 export default function ChessBoard() {
@@ -54,10 +55,10 @@ export default function ChessBoard() {
         if (data.board) {
           queryClient.setQueryData(["selectedBoard"], { positions: data.board });
         } else if (data.error) {
-          alert(data.error || "Move failed");
+          toast.error(data.error.message || 'Move failed');
         }
-      } catch (err) {
-        alert("Network error");
+      } catch (error: any) {
+        toast.error(error.message || "Network error");
       }
       setSelectedSquare(null);
       return;
@@ -100,10 +101,10 @@ export default function ChessBoard() {
           if (data.board) {
             queryClient.setQueryData(["selectedBoard"], { positions: data.board });
           } else if (data.error) {
-            alert(data.error || "Move failed");
+            toast.error(data.error.message || "Move failed");
           }
-        } catch (err) {
-          alert("Network error");
+        } catch (error: any) {
+          toast.error(error.message || "Network error");
         }
         setSelectedSquare(null);
         return;

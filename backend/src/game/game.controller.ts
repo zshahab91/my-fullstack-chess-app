@@ -24,7 +24,7 @@ export class GameController {
       if (!token) {
         return res.status(HttpStatus.BAD_REQUEST).json({ error: 'Missing authorization token' });
       }
-      const { game, isNew } = this.gameService.startOrJoinGame(token);
+      const { game, isNew } = this.gameService.startOrJoinGame({token});
       this.sseService.sendGameStartMessages(game, this.userService);
       const response = this.gameService.getGameResponse(game, token);
       return res.status(HttpStatus.OK).json({ ...response, isNew });

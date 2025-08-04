@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import { apiService } from "@/app/services/apiService";
+import { toast } from "react-toastify";
 
 export default function LoginForm({ onLogin }: { onLogin?: (nickName: string) => void }) {
   const [nickName, setNickName] = useState("");
@@ -16,10 +17,11 @@ export default function LoginForm({ onLogin }: { onLogin?: (nickName: string) =>
     try {
       // Use the apiService for login
       await apiService.login(nickName);
+      toast.success('Login successful!');
       // Call start service after login
       if (onLogin) onLogin(nickName);
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Login failed");
+      toast.error(err.message || 'Login failed');
     } finally {
       inProgress.current = false;
     }

@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "react-toastify";
 import LoginForm from "../components/auth/LoginForm";
 import { apiService } from "../services/apiService";
 import { useRouter } from "next/navigation";
@@ -23,8 +24,8 @@ export default function LoginPage() {
         try {
             const data = await apiService.login(nickName);
             handleLogin(nickName,data.token);
-        } catch {
-            // error handled in LoginForm
+        } catch (error: any) {
+            toast.error(error.message || "Login failed");
         }
     };
     return (

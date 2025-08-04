@@ -15,7 +15,8 @@ export const queryClient = new QueryClient();
 axios.interceptors.request.use(
   (config) => {
     if (authToken) {
-      config.headers["Authorization"] = `Bearer ${authToken}`;
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${authToken}`;
     }
     return config;
   },

@@ -2,66 +2,67 @@
   {
     "id": "initial",
     "positions": [
-      { "position": "a1", "piece": "rook", "color": "white" },
-      { "position": "b1", "piece": "knight", "color": "white" },
-      { "position": "c1", "piece": "bishop", "color": "white" },
-      { "position": "d1", "piece": "queen", "color": "white" },
-      { "position": "e1", "piece": "king", "color": "white" },
-      { "position": "f1", "piece": "bishop", "color": "white" },
-      { "position": "g1", "piece": "knight", "color": "white" },
-      { "position": "h1", "piece": "rook", "color": "white" },
-      { "position": "a2", "piece": "pawn", "color": "white" },
-      { "position": "b2", "piece": "pawn", "color": "white" },
-      { "position": "c2", "piece": "pawn", "color": "white" },
-      { "position": "d2", "piece": "pawn", "color": "white" },
-      { "position": "e2", "piece": "pawn", "color": "white" },
-      { "position": "f2", "piece": "pawn", "color": "white" },
-      { "position": "g2", "piece": "pawn", "color": "white" },
-      { "position": "h2", "piece": "pawn", "color": "white" },
 
-      { "position": "a8", "piece": "rook", "color": "black" },
-      { "position": "b8", "piece": "knight", "color": "black" },
-      { "position": "c8", "piece": "bishop", "color": "black" },
-      { "position": "d8", "piece": "queen", "color": "black" },
-      { "position": "e8", "piece": "king", "color": "black" },
-      { "position": "f8", "piece": "bishop", "color": "black" },
-      { "position": "g8", "piece": "knight", "color": "black" },
-      { "position": "h8", "piece": "rook", "color": "black" },
-      { "position": "a7", "piece": "pawn", "color": "black" },
-      { "position": "b7", "piece": "pawn", "color": "black" },
-      { "position": "c7", "piece": "pawn", "color": "black" },
-      { "position": "d7", "piece": "pawn", "color": "black" },
-      { "position": "e7", "piece": "pawn", "color": "black" },
-      { "position": "f7", "piece": "pawn", "color": "black" },
-      { "position": "g7", "piece": "pawn", "color": "black" },
-      { "position": "h7", "piece": "pawn", "color": "black" }
+      { "position": "a1", "piece": "r", "color": "w" },
+      { "position": "b1", "piece": "k", "color": "w" },
+      { "position": "c1", "piece": "b", "color": "w" },
+      { "position": "d1", "piece": "q", "color": "w" },
+      { "position": "e1", "piece": "k", "color": "w" },
+      { "position": "f1", "piece": "b", "color": "w" },
+      { "position": "g1", "piece": "k", "color": "w" },
+      { "position": "h1", "piece": "r", "color": "w" },
+      { "position": "a2", "piece": "p", "color": "w" },
+      { "position": "b2", "piece": "p", "color": "w" },
+      { "position": "c2", "piece": "p", "color": "w" },
+      { "position": "d2", "piece": "p", "color": "w" },
+      { "position": "e2", "piece": "p", "color": "w" },
+      { "position": "f2", "piece": "p", "color": "w" },
+      { "position": "g2", "piece": "p", "color": "w" },
+      { "position": "h2", "piece": "p", "color": "w" },
+
+      { "position": "a8", "piece": "r", "color": "b" },
+      { "position": "b8", "piece": "k", "color": "b" },
+      { "position": "c8", "piece": "b", "color": "b" },
+      { "position": "d8", "piece": "q", "color": "b" },
+      { "position": "e8", "piece": "k", "color": "b" },
+      { "position": "f8", "piece": "b", "color": "b" },
+      { "position": "g8", "piece": "k", "color": "b" },
+      { "position": "h8", "piece": "r", "color": "b" },
+      { "position": "a7", "piece": "p", "color": "b" },
+      { "position": "b7", "piece": "p", "color": "b" },
+      { "position": "c7", "piece": "p", "color": "b" },
+      { "position": "d7", "piece": "p", "color": "b" },
+      { "position": "e7", "piece": "p", "color": "b" },
+      { "position": "f7", "piece": "p", "color": "b" },
+      { "position": "g7", "piece": "p", "color": "b" },
+      { "position": "h7", "piece": "p", "color": "b" }
     ]
   },
   {
     "id": "test1",
     "positions": [
-      { "position": "e5", "piece": "knight", "color": "white" },
-      { "position": "d4", "piece": "pawn", "color": "black" },
-      { "position": "e6", "piece": "bishop", "color": "white" },
-      { "position": "f5", "piece": "queen", "color": "black" }
+      { "position": "e5", "piece": "k", "color": "w" },
+      { "position": "d4", "piece": "p", "color": "b" },
+      { "position": "e6", "piece": "b", "color": "w" },
+      { "position": "f5", "piece": "q", "color": "b" }
     ]
   },
   {
     "id": "test2",
     "positions": [
-      { "position": "g1", "piece": "knight", "color": "white" },
-      { "position": "h3", "piece": "pawn", "color": "black" },
-      { "position": "f2", "piece": "bishop", "color": "white" },
-      { "position": "e4", "piece": "queen", "color": "black" }
+      { "position": "g1", "piece": "k", "color": "w" },
+      { "position": "h3", "piece": "p", "color": "b" },
+      { "position": "f2", "piece": "b", "color": "w" },
+      { "position": "e4", "piece": "q", "color": "b" }
     ]
   },
   {
     "id": "test3",
     "positions": [
-      { "position": "c3", "piece": "knight", "color": "white" },
-      { "position": "b5", "piece": "pawn", "color": "black" },
-      { "position": "d6", "piece": "bishop", "color": "white" },
-      { "position": "e7", "piece": "queen", "color": "black" }
+      { "position": "c3", "piece": "k", "color": "w" },
+      { "position": "b5", "piece": "p", "color": "b" },
+      { "position": "d6", "piece": "b", "color": "w" },
+      { "position": "e7", "piece": "q", "color": "b" }
     ]
   }
 ]

@@ -1,11 +1,11 @@
 export const getPieceSymbol = (piece: string, color: string) => {
     const symbols: Record<string, string> = {
-        king: color !== "white" ? "♔" : "♚",
-        queen: color !== "white" ? "♕" : "♛",
-        rook: color !== "white" ? "♖" : "♜",
-        bishop: color !== "white" ? "♗" : "♝",
-        knight: color !== "white" ? "♘" : "♞",
-        pawn: color !== "white" ? "♙" : "♟",
+        k: color !== "w" ? "♔" : "♚",
+        q: color !== "w" ? "♕" : "♛",
+        r: color !== "w" ? "♖" : "♜",
+        b: color !== "w" ? "♗" : "♝",
+        n: color !== "w" ? "♘" : "♞",
+        p: color !== "w" ? "♙" : "♟",
     };
 
     const symbol = symbols[piece];
@@ -17,4 +17,9 @@ export const getPieceSymbol = (piece: string, color: string) => {
 export const capitalizeFirstChar = (str: string)  =>{
   if (!str) return "";
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export const cleanErrorMessage = (message: string): string => {
+  // Remove curly braces, quotes, and excessive whitespace
+  return message.replace(/[{}"]/g, '').replace(/\s+/g, ' ').trim();
 }
