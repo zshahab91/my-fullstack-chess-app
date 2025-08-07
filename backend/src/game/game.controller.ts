@@ -16,6 +16,7 @@ import { Response } from 'express';
 import { SseService } from '../sse/sse.service'; // Import SseService
 import { UserService } from 'src/user/user.service';
 import { MoveRequestDto } from './dto/move-request.dto';
+import { User } from 'src/user/schemas/user.schema';
 
 @Controller('game')
 export class GameController {
@@ -78,7 +79,6 @@ export class GameController {
   @Get('status')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async getGameByToken(@Req() req: any, @Res() res: Response) {
-    console.log('REQ.USER:', req.user);
     try {
       const token = req.user?.token;
       if (!token) {
@@ -86,24 +86,40 @@ export class GameController {
           .status(HttpStatus.BAD_REQUEST)
           .json({ error: 'Missing authorization token' });
       }
-      // console.log('Getting game by token', token);
 
-      const game = await this.gameService.findGameByToken(token);
-      // If black player not joined yet, send waiting message
-      if (!game || !game.black) {
-        return res.status(HttpStatus.OK).json({
-          message: 'Waiting for a Black player to join...',
-          status: game?.status,
-          color: 'white',
-          opponent: null,
-          board: game?.board,
-          isNew: false,
-        });
-      }
-      // console.log('Game found for token:', game);
-      const response = await this.gameService.getGameResponse(game, token);
-      console.log('Response:', response);
-      return res.status(HttpStatus.OK).json({ ...response });
+      // Always assign game, creating if not found
+      const result = await this.gameService.findGameByToken(token)
+        ?? await this.gameService.startOrJoinGame({ token });
+      // result is either a Game or { game, isNew }
+      const game = 'game' in result ? result.game : result;
+      const isNew = 'isNew' in result ? result.isNew : false;
+      // Determine color and opponent
+      const color: 'white' | 'black' =
+        game.white === token ? 'white' : game.black === token ? 'black' : 'white';
+      const opponentToken = color === 'white' ? game.black : game.white;
+      const opponentUser = opponentToken
+        ? await this.userService.findByToken(opponentToken)
+        : null;
+      const opponentNickName = opponentUser?.nickName ?? null;
+
+      // Custom message
+      const message =
+        color === 'white'
+          ? game.black
+            ? "A new game has started!,Start playing!"
+            : "Waiting for a Black player to join..."
+          : game.white
+            ? "A new game has started!,Start playing!"
+            : "Waiting for a White player to join...";
+console.log( 'game:', game);
+      return res.status(HttpStatus.OK).json({
+        message,
+        status: game.status,
+        color,
+        opponent: opponentNickName,
+        board: game.board.positions ?? [],
+        isNew,
+      });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)

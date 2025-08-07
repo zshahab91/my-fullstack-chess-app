@@ -1,4 +1,3 @@
-// src/components/SseClient.tsx
 import { API_BASE_URL } from '@/app/services/apiService';
 import React, { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -14,7 +13,6 @@ const GameStatus: React.FC<{ token: string }> = ({ token }) => {
   useEffect(() => {
     // SSE connection as before
     const eventSource = new EventSource(`${API_BASE_URL}/sse/stream?token=${token}`);
-
     eventSource.onopen = () => {
       setConnected(true);
     };
@@ -22,6 +20,7 @@ const GameStatus: React.FC<{ token: string }> = ({ token }) => {
     eventSource.onmessage = (event) => {
       try {
         const data: Message = JSON.parse(event.data);
+        console.log('Received SSE message:', data);
         // Save board in React Query if present
         if (data.board) {
           queryClient.setQueryData(['selectedBoard'], { positions: data.board });
@@ -44,6 +43,7 @@ const GameStatus: React.FC<{ token: string }> = ({ token }) => {
       eventSource.close();
     };
   }, [token, queryClient]);
+
   useEffect(() => {
     // Fetch current game state on mount
     const fetchGame = async () => {
@@ -52,7 +52,7 @@ const GameStatus: React.FC<{ token: string }> = ({ token }) => {
         if (data.board) {
           queryClient.setQueryData(['selectedBoard'], { positions: data.board });
         }
-           const { board, ...rest } = data;
+        const { board, ...rest } = data;
         setMessages(rest);
       } catch (err) {
         setMessages({ message: "Failed to load game state" });
@@ -72,8 +72,8 @@ const GameStatus: React.FC<{ token: string }> = ({ token }) => {
             <span className="capitalize text-sm mr-2">Your color:</span>
             <span
               className={`inline-block w-5 h-5 rounded-full  ${messages.color === "white"
-                  ? "bg-white border border-gray-800 border-solid"
-                  : "bg-black border border-gray-100 border-solid"
+                ? "bg-white border border-gray-800 border-solid"
+                : "bg-black border border-gray-100 border-solid"
                 }`}
             ></span>
           </div>

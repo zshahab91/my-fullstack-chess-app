@@ -18,7 +18,9 @@ export class GameService {
   ) {}
 
   async findGameByToken(token: string): Promise<Game | null> {
-    return this.gameModel.findOne({ $or: [{ white: token }, { black: token }] }).exec();
+    return this.gameModel
+      .findOne({ $or: [{ white: token }, { black: token }] })
+      .exec();
   }
 
   async findWaitingGame(): Promise<Game | null> {
@@ -27,7 +29,9 @@ export class GameService {
 
   async pushOrUpdateGame(game: Partial<Game>): Promise<Game> {
     if (game.id) {
-      return this.gameModel.findOneAndUpdate({ id: game.id }, game, { new: true, upsert: true }).exec();
+      return this.gameModel
+        .findOneAndUpdate({ id: game.id }, game, { new: true, upsert: true })
+        .exec();
     } else {
       const createdGame = new this.gameModel(game);
       return createdGame.save();
@@ -39,7 +43,10 @@ export class GameService {
     return board?.positions ?? [];
   }
 
-  async getGameResponse(game: GameDto, userToken: string): Promise<GameResponseDto> {
+  async getGameResponse(
+    game: GameDto,
+    userToken: string,
+  ): Promise<GameResponseDto> {
     const opponentToken = game.white === userToken ? game.black : game.white;
     let opponentNickName: string | null = null;
     if (opponentToken) {
@@ -54,11 +61,22 @@ export class GameService {
     };
   }
 
-  async makeMove(move: MoveDto, userToken: string): Promise<{ game: any; user: any }> {
+  async makeMove(
+    move: MoveDto,
+    userToken: string,
+  ): Promise<{ game: any; user: any }> {
     const game = await this.findGameByToken(userToken);
-    console.log('GameService: makeMove called with move:', move, 'for user:', userToken);
+    console.log(
+      'GameService: makeMove called with move:',
+      move,
+      'for user:',
+      userToken,
+    );
     if (!game) {
-      throw new HttpException('Game not found for this user', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Game not found for this user',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     // Validate turn
@@ -67,7 +85,10 @@ export class GameService {
       (isWhiteTurn && game.white !== userToken) ||
       (!isWhiteTurn && game.black !== userToken)
     ) {
-      throw new HttpException('It is not your turn to move', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'It is not your turn to move',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     const chess = new Chess(game.fen || undefined);
@@ -76,19 +97,23 @@ export class GameService {
     const result = chess.move({ from: move.from, to: move.to, promotion: 'q' });
     if (!result) {
       console.error('Invalid move attempted:', move);
-      throw new HttpException('Invalid move according to chess rules', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Invalid move according to chess rules',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     // Update game state
     game.moves.push(move);
-    game.board = [{
-      id: 'current',
-      positions: chess.board().flat().filter(Boolean).map((p: any) => ({
+    game.board = chess
+      .board()
+      .flat()
+      .filter(Boolean)
+      .map((p: any) => ({
         piece: p.type,
         color: p.color,
         position: p.square,
-      }))
-    }];
+      }));
     game.fen = chess.fen();
     game.status = chess.isGameOver() ? 'finished' : 'in-progress';
     game.updatedAt = new Date().toISOString();
@@ -100,7 +125,9 @@ export class GameService {
     return { game, user };
   }
 
-  async startOrJoinGame(startGameDto: StartGameRequestDto): Promise<{ game: any; isNew: boolean }> {
+  async startOrJoinGame(
+    startGameDto: StartGameRequestDto,
+  ): Promise<{ game: any; isNew: boolean }> {
     const token = startGameDto.token;
     let game = await this.findGameByToken(token);
     if (game) {
@@ -119,6 +146,7 @@ export class GameService {
 
     // Create a new game
     const initialBoard = await this.findInitialBoard();
+    console.log('initialBoard:', initialBoard);
     const newGame = new this.gameModel({
       id: Date.now().toString(),
       white: token,
@@ -130,7 +158,6 @@ export class GameService {
       status: 'waiting',
     });
     await newGame.save();
-    console.log(`New game created with ID: ${newGame}`);
     return { game: newGame, isNew: true };
   }
 

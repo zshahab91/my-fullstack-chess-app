@@ -30,6 +30,6 @@ export class GameDto {
   createdAt: string;
   updatedAt?: string;
   moves: MoveDto[];
-  board: BoardDto[];
+  board: BoardPositionDto[];
   status: 'waiting' | 'in-progress' | 'finished';
 }
