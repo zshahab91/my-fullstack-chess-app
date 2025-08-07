@@ -1,10 +1,9 @@
 import axios from "axios";
 import { setAuthToken as setInterceptorAuthToken } from "./apiInterceptor";
 import type { GameResponse, Move } from '../interfaces/chessType';
-import { ApiError } from "../interfaces/apiError";
 import { cleanErrorMessage } from "../utils/global";
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"; // adjust port if needed
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3100/api"; // adjust port if needed
 
 
 const setAuthToken = (token: string) => {
@@ -20,15 +19,26 @@ export const apiService = {
     try {
       const response = await axios.get(`${API_BASE_URL}/boards/${id}`);
       return response.data;
-    } catch (error: ApiError) {
+    } catch (error: unknown) {
       // Axios wraps backend errors in error.response
-      if (error.response && error.response.data && error.response.data.error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        (error as any).response.data &&
+        (error as any).response.data.error
+      ) {
         // This is the backend error message
-        throw new Error(cleanErrorMessage(error.response.data.error));
+        throw new Error(cleanErrorMessage((error as any).response.data.error));
       }
       // Otherwise, throw the generic error
-              throw new Error(cleanErrorMessage(error.message || "An error occurred while fetching the board"));
-
+      throw new Error(
+        cleanErrorMessage(
+          (typeof error === "object" && error !== null && "message" in error)
+            ? (error as any).message
+            : "An error occurred while fetching the board"
+        )
+      );
     }
   },
   login: async (nickName: string) => {
@@ -42,14 +52,26 @@ export const apiService = {
       }
       setAuthToken(token);
       return response.data;
-    } catch (error: ApiError) {
+    } catch (error: unknown) {
       // Axios wraps backend errors in error.response
-      if (error.response && error.response.data && error.response.data.error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        (error as any).response.data &&
+        (error as any).response.data.error
+      ) {
         // This is the backend error message
-        throw new Error(cleanErrorMessage(error.response.data.error));
+        throw new Error(cleanErrorMessage((error as any).response.data.error));
       }
       // Otherwise, throw the generic error
-      throw new Error(cleanErrorMessage(error.message || "An error occurred while logging in"));
+      throw new Error(
+        cleanErrorMessage(
+          (typeof error === "object" && error !== null && "message" in error)
+            ? (error as any).message
+            : "An error occurred while logging in"
+        )
+      );
     }
   },
   setAuthToken,
@@ -57,40 +79,84 @@ export const apiService = {
     try {
       const response = await axios.post(`${API_BASE_URL}/game/start`);
       return response.data;
-    } catch (error: ApiError) {
+    } catch (error: unknown) {
       // Axios wraps backend errors in error.response
-      if (error.response && error.response.data && error.response.data.error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        (error as any).response.data &&
+        (error as any).response.data.error
+      ) {
         // This is the backend error message
-        throw new Error(cleanErrorMessage(error.response.data.error));
+        throw new Error(cleanErrorMessage((error as any).response.data.error));
       }
       // Otherwise, throw the generic error
-      throw new Error(cleanErrorMessage(error.message || "An error occurred while starting the game"));
+      throw new Error(
+        cleanErrorMessage(
+          (typeof error === "object" && error !== null && "message" in error)
+            ? (error as any).message
+            : "An error occurred while starting the game"
+        )
+      );
     }
   },
   movePiece: async (move: Move) => {
     try {
       const response = await axios.patch(`${API_BASE_URL}/game/move`, { move });
       return response.data;
-    } catch (error: ApiError) {
+    } catch (error: unknown) {
       // Axios wraps backend errors in error.response
-      if (error.response && error.response.data && error.response.data.error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        (error as any).response.data &&
+        (error as any).response.data.error
+      ) {
         // This is the backend error message
-        throw new Error(cleanErrorMessage(error.response.data.error));
+        throw new Error(cleanErrorMessage((error as any).response.data.error));
       }
       // Otherwise, throw the generic error
-      throw new Error(cleanErrorMessage(error.message || "An error occurred while moving the piece"));
+      throw new Error(
+        cleanErrorMessage(
+          (typeof error === "object" && error !== null && "message" in error)
+            ? (error as any).message
+            : "An error occurred while moving the piece"
+        )
+      );
     }
   },
   getGameByToken: async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/game/token`);
+      const response = await axios.get(`${API_BASE_URL}/game/status`);
       return response.data;
-    } catch (error: ApiError) {
-      if (error.response && error.response.data && error.response.data.error) {
-        throw new Error(cleanErrorMessage(error.response.data.error));
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        (error as any).response.data &&
+        (error as any).response.data.error
+      ) {
+        throw new Error(cleanErrorMessage((error as any).response.data.error));
       }
-      throw new Error(cleanErrorMessage(error.message || "An error occurred while fetching the game by token"));
+      throw new Error(
+        cleanErrorMessage(
+          (typeof error === "object" && error !== null && "message" in error)
+            ? (error as any).message
+            : "An error occurred while fetching the game by token"
+        )
+      );
     }
   },
+  getHello: async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/game/test`);
+      return response.data;
+    } catch (error: unknown) {
+      
+    }
+  }
 };
 

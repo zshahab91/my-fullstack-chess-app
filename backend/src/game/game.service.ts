@@ -1,107 +1,65 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import * as path from 'path';
-import * as fs from 'fs';
 import { GameResponseDto } from './dto/game-response.dto';
 import { GameDto, MoveDto } from './dto/game.dto';
 import { StartGameRequestDto } from './dto/start-game-request.dto';
 import { UserService } from 'src/user/user.service';
 import { Chess } from 'chess.js';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Game } from './schemas/game.schema';
+import { Board } from './schemas/board.schema';
 
 @Injectable()
 export class GameService {
-  private dbDir = path.join(__dirname, '..', 'db');
-  private dbPath = path.join(this.dbDir, 'games.json');
+  constructor(
+    private readonly userService: UserService,
+    @InjectModel(Game.name) private gameModel: Model<Game>,
+    @InjectModel(Board.name) private boardModel: Model<Board>,
+  ) {}
 
-
-  constructor(private readonly userService: UserService) {
-    this.readGames(); // This will ensure dbDir and games.json exist
+  async findGameByToken(token: string): Promise<Game | null> {
+    return this.gameModel.findOne({ $or: [{ white: token }, { black: token }] }).exec();
   }
 
-  private ensureDbDir() {
-    if (!fs.existsSync(this.dbDir)) {
-      fs.mkdirSync(this.dbDir, { recursive: true });
-    }
-    // Ensure games.json exists
-    if (!fs.existsSync(this.dbPath)) {
-      fs.writeFileSync(this.dbPath, '[]', 'utf8');
-    }
+  async findWaitingGame(): Promise<Game | null> {
+    return this.gameModel.findOne({ status: 'waiting' }).exec();
   }
 
-  private readGames(): any[] {
-    this.ensureDbDir();
-    try {
-      const gamesRaw = fs.readFileSync(this.dbPath, 'utf8');
-      return JSON.parse(gamesRaw) || [];
-    } catch {
-      return [];
-    }
-  }
-
-  private writeGames(games: any[]) {
-    this.ensureDbDir();
-    try {
-      fs.writeFileSync(this.dbPath, JSON.stringify(games, null, 2), 'utf8');
-    } catch (err) {
-      console.error('Failed to write games.json:', err);
-    }
-  }
-
-  findGameByToken(token: string) {
-    const games = this.readGames();
-    return games.find((g) => g.white === token || g.black === token) || null;
-  }
-
-  findWaitingGame() {
-    const games = this.readGames();
-    return games.find((g) => g.status === 'waiting') || null;
-  }
-
-  pushOrUpdateGame(game: any) {
-    const games = this.readGames();
-    const idx = games.findIndex((g) => g.id === game.id);
-    if (idx !== -1) {
-      games[idx] = game;
+  async pushOrUpdateGame(game: Partial<Game>): Promise<Game> {
+    if (game.id) {
+      return this.gameModel.findOneAndUpdate({ id: game.id }, game, { new: true, upsert: true }).exec();
     } else {
-      games.push(game);
+      const createdGame = new this.gameModel(game);
+      return createdGame.save();
     }
-    this.writeGames(games);
   }
 
-  findInitialBoard() {
-    const chessJsonPath = path.join(__dirname, '../..', 'db', 'chess.json');
-    if (!fs.existsSync(chessJsonPath)) return [];
-    try {
-      const chessRaw = fs.readFileSync(chessJsonPath, 'utf8');
-      const chessBoards = JSON.parse(chessRaw);
-      const initial = chessBoards.find((b: any) => b.id === 'initial');
-      if (initial && Array.isArray(initial.positions)) {
-        return initial.positions;
-      }
-    } catch (error) {
-      console.error('Error reading initial chess board:', error);
-    }
-    return [];
+  async findInitialBoard(): Promise<any[]> {
+    const board = await this.boardModel.findOne({ id: 'initial' }).exec();
+    return board?.positions ?? [];
   }
-  getGameResponse(game: GameDto, userToken: string): GameResponseDto {
+
+  async getGameResponse(game: GameDto, userToken: string): Promise<GameResponseDto> {
+    const opponentToken = game.white === userToken ? game.black : game.white;
+    let opponentNickName: string | null = null;
+    if (opponentToken) {
+      const opponentUser = await this.userService.findByToken(opponentToken);
+      opponentNickName = opponentUser?.nickName ?? null;
+    }
     return {
       color: game.white === userToken ? 'white' : 'black',
       status: game.status,
       board: game.board,
-      opponent: game.white === userToken
-        ? (game.black ? this.userService.findUserByToken(game.black)?.nickName : null)
-        : (game.white ? this.userService.findUserByToken(game.white)?.nickName : null),
+      opponent: opponentNickName,
     };
   }
 
   async makeMove(move: MoveDto, userToken: string): Promise<{ game: any; user: any }> {
-    const games = this.readGames();
-    const gameIndex = games.findIndex(
-      (g) => g.white === userToken || g.black === userToken,
-    );
-    if (gameIndex === -1) {
+    const game = await this.findGameByToken(userToken);
+    console.log('GameService: makeMove called with move:', move, 'for user:', userToken);
+    if (!game) {
       throw new HttpException('Game not found for this user', HttpStatus.NOT_FOUND);
     }
-    const game = games[gameIndex];
 
     // Validate turn
     const isWhiteTurn = game.moves.length % 2 === 0;
@@ -123,43 +81,45 @@ export class GameService {
 
     // Update game state
     game.moves.push(move);
-    game.board = chess.board().flat().filter(Boolean).map((p: any) => ({
-      piece: p.type,
-      color: p.color,
-      position: p.square,
-    }));
+    game.board = [{
+      id: 'current',
+      positions: chess.board().flat().filter(Boolean).map((p: any) => ({
+        piece: p.type,
+        color: p.color,
+        position: p.square,
+      }))
+    }];
     game.fen = chess.fen();
     game.status = chess.isGameOver() ? 'finished' : 'in-progress';
     game.updatedAt = new Date().toISOString();
 
-    games[gameIndex] = game;
-    this.writeGames(games);
+    await game.save();
 
-    const user = this.userService.findUserByToken(userToken);
+    const user = await this.userService.findByToken(userToken);
 
     return { game, user };
   }
 
-  startOrJoinGame(startGameDto: StartGameRequestDto): { game: any; isNew: boolean } {
+  async startOrJoinGame(startGameDto: StartGameRequestDto): Promise<{ game: any; isNew: boolean }> {
     const token = startGameDto.token;
-    let game = this.findGameByToken(token);
+    let game = await this.findGameByToken(token);
     if (game) {
       return { game, isNew: false };
     }
 
     // Try to join a waiting game
-    game = this.findWaitingGame();
+    game = await this.findWaitingGame();
     if (game) {
       game.black = token;
       game.status = 'in-progress';
       game.updatedAt = new Date().toISOString();
-      this.pushOrUpdateGame(game);
+      await game.save();
       return { game, isNew: false };
     }
 
     // Create a new game
-    const initialBoard = this.findInitialBoard();
-    game = {
+    const initialBoard = await this.findInitialBoard();
+    const newGame = new this.gameModel({
       id: Date.now().toString(),
       white: token,
       black: '',
@@ -168,9 +128,10 @@ export class GameService {
       moves: [],
       board: initialBoard,
       status: 'waiting',
-    };
-    this.pushOrUpdateGame(game);
-    return { game, isNew: true };
+    });
+    await newGame.save();
+    console.log(`New game created with ID: ${newGame}`);
+    return { game: newGame, isNew: true };
   }
 
   getTurn(game: GameDto): 'white' | 'black' {
@@ -180,8 +141,7 @@ export class GameService {
     return (game.moves?.length ?? 0) % 2 === 0 ? 'white' : 'black';
   }
 
-  findGameById(id: string) {
-    const games = this.readGames();
-    return games.find((g) => g.id === id) || null;
+  async findGameById(id: string): Promise<Game | null> {
+    return this.gameModel.findOne({ id }).exec();
   }
 }

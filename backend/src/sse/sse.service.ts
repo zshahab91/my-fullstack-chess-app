@@ -1,6 +1,6 @@
 // sse.service.ts
 import { Injectable } from '@nestjs/common';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { MessageEvent } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { GameDto } from 'src/game/dto/game.dto';
@@ -8,16 +8,16 @@ import { UserDto } from 'src/user/dto/user.dto';
 
 @Injectable()
 export class SseService {
-  private subjects: { [token: string]: Subject<MessageEvent> } = {};
+  private subjects: Record<string, Subject<MessageEvent>> = {};
 
-  getStream(token: string) {
+  getStream(token: string): Observable<MessageEvent> {
     if (!this.subjects[token]) {
       this.subjects[token] = new Subject<MessageEvent>();
     }
     return this.subjects[token].asObservable();
   }
   getTurn(game: GameDto): 'white' | 'black' {
-  return (game.moves?.length ?? 0) % 2 === 0 ? 'white' : 'black';
+    return (game.moves?.length ?? 0) % 2 === 0 ? 'white' : 'black';
   }
 
   sendToClient(token: string, data: any) {
@@ -31,13 +31,17 @@ export class SseService {
     }
   }
 
-  sendMoveMessages(
+  async sendMoveMessages(
     game: GameDto,
     movingUser: UserDto,
     userService: UserService,
   ) {
-    const whiteUser = userService.findUserByToken(game.white);
-    const blackUser = userService.findUserByToken(game.black);
+    const whiteUser = game.white
+      ? await userService.findByToken(game.white)
+      : null;
+    const blackUser = game.black
+      ? await userService.findByToken(game.black)
+      : null;
     const turn = this.getTurn(game);
 
     if (movingUser && movingUser.token === game.white && game.black) {
@@ -69,11 +73,21 @@ export class SseService {
     }
   }
 
-  sendGameStartMessages(game: GameDto, userService: UserService) {
-    const whiteUser = userService.findUserByToken(game.white);
-    const blackUser = game.black
-      ? userService.findUserByToken(game.black)
+  async sendGameStartMessages(game: GameDto, userService: UserService) {
+    const whiteUser = game.white
+      ? await userService.findByToken(game.white)
       : null;
+    const blackUser = game.black
+      ? await userService.findByToken(game.black)
+      : null;
+    // console.log(
+    //   'SseService: sendGameStartMessages called with game:',
+    //   game,
+    //   'whiteUser:',
+    //   whiteUser,
+    //   'blackUser:',
+    //   blackUser,
+    // );
     // Notify white player
     if (whiteUser?.token) {
       this.sendToClient(whiteUser.token, {
@@ -89,6 +103,7 @@ export class SseService {
 
     // Notify black player if present
     if (blackUser?.token) {
+      // console.log('if for blackUser');
       this.sendToClient(blackUser.token, {
         message: `A new game has started! please wait for the white player to make the first move.`,
         status: game.status,

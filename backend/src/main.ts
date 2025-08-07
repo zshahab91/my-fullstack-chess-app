@@ -9,6 +9,7 @@ async function bootstrap() {
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
-  await app.listen(3000); // or your backend port
+  app.setGlobalPrefix('api'); // Optional: set a global prefix for your API routes
+  await app.listen(process.env.PORT || 3100); // or your backend port
 }
 bootstrap();

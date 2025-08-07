@@ -1,38 +1,35 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import * as path from 'path';
-import * as fs from 'fs';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User } from './schemas/user.schema';
 
 @Injectable()
 export class UserMiddleware implements NestMiddleware {
-  use(req: any, res: any, next: () => void) {
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+  ) {}
+
+  use = async (req: any, res: any, next: () => void) => {
+    console.log('UserMiddleware:', req.headers['authorization']);
     const authHeader = req.headers['authorization'];
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ error: 'No token provided' });
     }
     const token = authHeader.replace('Bearer ', '');
 
-    // Read users.json
-    const usersPath = path.join(__dirname, '..', 'db', 'users.json');
-    let users: any[] = [];
     try {
-      if (fs.existsSync(usersPath)) {
-        const usersRaw = fs.readFileSync(usersPath, 'utf8');
-        users = JSON.parse(usersRaw) || [];
+      const user = await this.userModel.findOne({ token }).exec();
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid token' });
       }
-    } catch (error) {
-      return res.status(500).json({ error: 'Error reading users data' });
-    }
+      if (user.expiresAt && new Date(user.expiresAt) < new Date()) {
+        return res.status(401).json({ error: 'Token expired' });
+      }
 
-    // Find user by token and check expiration
-    const user = users.find((u) => u.token === token);
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid token' });
+      req.user = user;
+      next();
+    } catch (err) {
+      return res.status(500).json({ error: 'Middleware error' });
     }
-    if (user.expiresAt && new Date(user.expiresAt) < new Date()) {
-      return res.status(401).json({ error: 'Token expired' });
-    }
-
-    req.user = user;
-    next();
   }
 }

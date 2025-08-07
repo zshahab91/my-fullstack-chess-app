@@ -15,8 +15,12 @@ export default function Chess() {
             const res = await apiService.startGame();
             try {
                 queryClient.setQueryData(["gameStatus"], res);
-            } catch (error:ApiError) {
-                toast.error(error.message || 'Failed to start game');
+            } catch (error: unknown) {
+                if (typeof error === "object" && error !== null && "message" in error) {
+                    toast.error((error as { message?: string }).message || 'Failed to start game');
+                } else {
+                    toast.error('Failed to start game');
+                }
             }
         };
         startGame();

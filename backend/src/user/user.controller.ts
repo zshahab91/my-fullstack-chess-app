@@ -1,6 +1,6 @@
-import { Controller, Post, Body, Res, HttpStatus } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Post, Body, Res } from '@nestjs/common';
 import { UserService } from './user.service';
+import { Response } from 'express';
 
 @Controller('user')
 export class UserController {
@@ -9,14 +9,10 @@ export class UserController {
   @Post('login')
   async login(@Body() body: { nickName: string }, @Res() res: Response) {
     try {
-      const { nickName } = body;
-      const result = this.userService.login({ nickName });
-      if ('error' in result) {
-        return res.status(HttpStatus.BAD_REQUEST).json({ error: result.error });
-      }
-      return res.status(HttpStatus.OK).json({ message: 'Login successful', token: result.token });
+      const result = await this.userService.login({nickName: body.nickName });
+      return res.status(200).json(result);
     } catch (error) {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
+      return res.status(500).json({ error: error.message });
     }
   }
 }

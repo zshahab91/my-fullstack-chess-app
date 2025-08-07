@@ -12,22 +12,7 @@ const GameStatus: React.FC<{ token: string }> = ({ token }) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    // 1. Fetch current game state on mount
-    const fetchGame = async () => {
-      try {
-        const data = await apiService.getGameByToken(); // or use gameId if that's your identifier
-        if (data.board) {
-          queryClient.setQueryData(['selectedBoard'], { positions: data.board });
-        }
-        // Set other initial messages if needed
-        setMessages({ status: data.status, ...data });
-      } catch (err) {
-        setMessages({ message: "Failed to load game state" });
-      }
-    };
-    fetchGame();
-
-    // 2. SSE connection as before
+    // SSE connection as before
     const eventSource = new EventSource(`${API_BASE_URL}/sse/stream?token=${token}`);
 
     eventSource.onopen = () => {
@@ -59,6 +44,22 @@ const GameStatus: React.FC<{ token: string }> = ({ token }) => {
       eventSource.close();
     };
   }, [token, queryClient]);
+  useEffect(() => {
+    // Fetch current game state on mount
+    const fetchGame = async () => {
+      try {
+        const data = await apiService.getGameByToken(); // or use gameId if that's your identifier
+        if (data.board) {
+          queryClient.setQueryData(['selectedBoard'], { positions: data.board });
+        }
+           const { board, ...rest } = data;
+        setMessages(rest);
+      } catch (err) {
+        setMessages({ message: "Failed to load game state" });
+      }
+    };
+    fetchGame();
+  }, [token]);
 
   return (
     <div className="p-4 border rounded">
@@ -70,11 +71,10 @@ const GameStatus: React.FC<{ token: string }> = ({ token }) => {
           <div className="flex items-center">
             <span className="capitalize text-sm mr-2">Your color:</span>
             <span
-              className={`inline-block w-5 h-5 rounded-full  ${
-                messages.color === "white"
+              className={`inline-block w-5 h-5 rounded-full  ${messages.color === "white"
                   ? "bg-white border border-gray-800 border-solid"
                   : "bg-black border border-gray-100 border-solid"
-              }`}
+                }`}
             ></span>
           </div>
         )}

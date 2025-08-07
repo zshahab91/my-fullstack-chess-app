@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ClientProviders>
           {children}
         </ClientProviders>
-        <ToastContainer position="top-right" autoClose={5000} aria-label="Notification" />
+        <ToastContainer position="top-right" autoClose={2000} aria-label="Notification" />
       </body>
     </html>
   );

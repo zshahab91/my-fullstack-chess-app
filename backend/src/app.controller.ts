@@ -7,6 +7,11 @@ import { Response } from 'express';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
+  @Get()
+  getHello(): string {
+    console.log('AppController: getHello called');
+    return this.appService.start();
+  }
 
   @Get('boards')
   getAllBoards(@Res() res: Response): any {

@@ -33,7 +33,7 @@ axios.interceptors.response.use(
         sessionStorage.clear(); // Clear session storage
         setAuthToken(""); // Clear auth token
         queryClient.clear(); // Clear React Query cache
-        window.location.href = "/login";
+        // window.location.href = "/login";
       }
     }
     return Promise.reject(error);

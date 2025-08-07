@@ -28,6 +28,7 @@ export class GameController {
   @Post('start')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async start(@Req() req: any, @Res() res: Response) {
+    // console.log('GameController: start called');
     try {
       const token = req.user?.token;
       if (!token) {
@@ -35,9 +36,9 @@ export class GameController {
           .status(HttpStatus.BAD_REQUEST)
           .json({ error: 'Missing authorization token' });
       }
-      const { game, isNew } = this.gameService.startOrJoinGame({ token });
+      const { game, isNew } = await this.gameService.startOrJoinGame({ token });
       this.sseService.sendGameStartMessages(game, this.userService);
-      const response = this.gameService.getGameResponse(game, token);
+      const response = await this.gameService.getGameResponse(game, token);
       return res.status(HttpStatus.OK).json({ ...response, isNew });
     } catch (error) {
       return res
@@ -65,7 +66,7 @@ export class GameController {
         token,
       );
       this.sseService.sendMoveMessages(game, user, this.userService);
-      const response = this.gameService.getGameResponse(game, user.token);
+      const response = await this.gameService.getGameResponse(game, user.token);
       return res.status(HttpStatus.OK).json(response);
     } catch (error) {
       return res
@@ -74,7 +75,44 @@ export class GameController {
     }
   }
 
+  @Get('status')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async getGameByToken(@Req() req: any, @Res() res: Response) {
+    console.log('REQ.USER:', req.user);
+    try {
+      const token = req.user?.token;
+      if (!token) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ error: 'Missing authorization token' });
+      }
+      // console.log('Getting game by token', token);
+
+      const game = await this.gameService.findGameByToken(token);
+      // If black player not joined yet, send waiting message
+      if (!game || !game.black) {
+        return res.status(HttpStatus.OK).json({
+          message: 'Waiting for a Black player to join...',
+          status: game?.status,
+          color: 'white',
+          opponent: null,
+          board: game?.board,
+          isNew: false,
+        });
+      }
+      // console.log('Game found for token:', game);
+      const response = await this.gameService.getGameResponse(game, token);
+      console.log('Response:', response);
+      return res.status(HttpStatus.OK).json({ ...response });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: error.message });
+    }
+  }
+
   @Get(':id')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
   async getGameById(@Param('id') id: string, @Res() res: Response) {
     try {
       const game = this.gameService.findGameById(id);
@@ -84,38 +122,6 @@ export class GameController {
           .json({ error: 'Game not found' });
       }
       return res.status(HttpStatus.OK).json(game);
-    } catch (error) {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ error: error.message });
-    }
-  }
-
-  @Get('token')
-  async getGameByToken(@Req() req: any, @Res() res: Response) {
-    try {
-      const token = req.user?.token;
-      if (!token) {
-        return res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ error: 'Missing authorization token' });
-      }
-
-      const game = this.gameService.findGameByToken(token);
-      // If black player not joined yet, send waiting message
-      if (!game.black || !game) {
-        return res.status(HttpStatus.OK).json({
-          message: 'Waiting for a Black player to join...',
-          status: game.status,
-          color: 'white',
-          opponent: null,
-          board: game.board,
-          isNew: false,
-        });
-      }
-
-      const response = this.gameService.getGameResponse(game, token);
-      return res.status(HttpStatus.OK).json({ ...response, isNew: false });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)

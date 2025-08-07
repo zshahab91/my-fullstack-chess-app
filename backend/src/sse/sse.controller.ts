@@ -7,6 +7,7 @@ import { Observable } from "rxjs";
 export class SseController {
   constructor(private readonly sseService: SseService) {}
 
+
   @Sse('stream')
   stream(@Query('token') token: string): Observable<MessageEvent> {
     if (!token) {
