@@ -16,7 +16,6 @@ import { Response } from 'express';
 import { SseService } from '../sse/sse.service'; // Import SseService
 import { UserService } from 'src/user/user.service';
 import { MoveRequestDto } from './dto/move-request.dto';
-import { User } from 'src/user/schemas/user.schema';
 
 @Controller('game')
 export class GameController {
@@ -38,7 +37,7 @@ export class GameController {
           .json({ error: 'Missing authorization token' });
       }
       const { game, isNew } = await this.gameService.startOrJoinGame({ token });
-      this.sseService.sendGameStartMessages(game, this.userService);
+      await this.sseService.sendGameStartMessages(game, this.userService);
       const response = await this.gameService.getGameResponse(game, token);
       return res.status(HttpStatus.OK).json({ ...response, isNew });
     } catch (error) {
@@ -66,7 +65,7 @@ export class GameController {
         moveRequestDto.move,
         token,
       );
-      this.sseService.sendMoveMessages(game, user, this.userService);
+      await this.sseService.sendMoveMessages(game, user, this.userService);
       const response = await this.gameService.getGameResponse(game, user.token);
       return res.status(HttpStatus.OK).json(response);
     } catch (error) {
@@ -103,21 +102,29 @@ export class GameController {
       const opponentNickName = opponentUser?.nickName ?? null;
 
       // Custom message
-      const message =
-        color === 'white'
-          ? game.black
-            ? "A new game has started!,Start playing!"
-            : "Waiting for a Black player to join..."
-          : game.white
-            ? "A new game has started!,Start playing!"
-            : "Waiting for a White player to join...";
-console.log( 'game:', game);
+      let message: string;
+      if (game.moves.length === 0) {
+        if (color === 'white') {
+          message = !game.black
+            ? "Waiting for a Black player to join..."
+            : "A new game has started and it's your turn!";
+        } else {
+          message = "Waiting for White to make the first move...";
+        }
+      } else {
+        const turn = game.moves.length % 2 === 0 ? 'white' : 'black';
+        if (color === turn) {
+          message = "It's your turn!";
+        } else {
+          message = "Waiting for opponent to move...";
+        }
+      }
       return res.status(HttpStatus.OK).json({
         message,
         status: game.status,
         color,
         opponent: opponentNickName,
-        board: game.board.positions ?? [],
+        board: game.board,
         isNew,
       });
     } catch (error) {

@@ -14,6 +14,7 @@ export class SseService {
     if (!this.subjects[token]) {
       this.subjects[token] = new Subject<MessageEvent>();
     }
+    console.log('SseService: getStream called for token:', token);
     return this.subjects[token].asObservable();
   }
   getTurn(game: GameDto): 'white' | 'black' {
@@ -21,12 +22,15 @@ export class SseService {
   }
 
   sendToClient(token: string, data: any) {
+    console.log('subject',this.subjects);
     const subject = this.subjects[token];
     const messageEvent: MessageEvent = {
       data: JSON.stringify(data),
       type: 'message',
     };
+    console.log('SseService: Sending message to', token);
     if (subject) {
+      console.log('SseService if');
       subject.next(messageEvent);
     }
   }
@@ -45,6 +49,7 @@ export class SseService {
     const turn = this.getTurn(game);
 
     if (movingUser && movingUser.token === game.white && game.black) {
+      console.log('if for whiteUser in move messages');
       this.sendToClient(game.white, {
         message: 'Please wait for your opponent to move',
         status: game.status,
@@ -58,6 +63,7 @@ export class SseService {
         turn,
       });
     } else if (movingUser && movingUser.token === game.black && game.white) {
+      console.log('if for blackUser in move messages');
       this.sendToClient(game.black, {
         message: 'Please wait for your opponent to move',
         status: game.status,
@@ -80,16 +86,9 @@ export class SseService {
     const blackUser = game.black
       ? await userService.findByToken(game.black)
       : null;
-    // console.log(
-    //   'SseService: sendGameStartMessages called with game:',
-    //   game,
-    //   'whiteUser:',
-    //   whiteUser,
-    //   'blackUser:',
-    //   blackUser,
-    // );
-    // Notify white player
+    // Notify white player if present
     if (whiteUser?.token) {
+      // console.log('if for whiteUser');
       this.sendToClient(whiteUser.token, {
         message: game.black
           ? `A new game has started!,Start playing!`
@@ -103,6 +102,7 @@ export class SseService {
 
     // Notify black player if present
     if (blackUser?.token) {
+      // console.log('if for blackUser');
       // console.log('if for blackUser');
       this.sendToClient(blackUser.token, {
         message: `A new game has started! please wait for the white player to make the first move.`,

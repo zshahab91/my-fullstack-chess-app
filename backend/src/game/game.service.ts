@@ -8,10 +8,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Game } from './schemas/game.schema';
 import { Board } from './schemas/board.schema';
+import { SseService } from 'src/sse/sse.service';
 
 @Injectable()
 export class GameService {
   constructor(
+    private readonly sseService: SseService,
     private readonly userService: UserService,
     @InjectModel(Game.name) private gameModel: Model<Game>,
     @InjectModel(Board.name) private boardModel: Model<Board>,
@@ -66,12 +68,6 @@ export class GameService {
     userToken: string,
   ): Promise<{ game: any; user: any }> {
     const game = await this.findGameByToken(userToken);
-    console.log(
-      'GameService: makeMove called with move:',
-      move,
-      'for user:',
-      userToken,
-    );
     if (!game) {
       throw new HttpException(
         'Game not found for this user',
@@ -96,7 +92,6 @@ export class GameService {
     // Validate and make the move
     const result = chess.move({ from: move.from, to: move.to, promotion: 'q' });
     if (!result) {
-      console.error('Invalid move attempted:', move);
       throw new HttpException(
         'Invalid move according to chess rules',
         HttpStatus.BAD_REQUEST,
@@ -120,6 +115,9 @@ export class GameService {
 
     await game.save();
 
+    // Send SSE message to both players
+    await this.sseService.sendGameStartMessages(game, this.userService);
+
     const user = await this.userService.findByToken(userToken);
 
     return { game, user };
@@ -141,24 +139,37 @@ export class GameService {
       game.status = 'in-progress';
       game.updatedAt = new Date().toISOString();
       await game.save();
-      return { game, isNew: false };
-    }
 
-    // Create a new game
-    const initialBoard = await this.findInitialBoard();
-    console.log('initialBoard:', initialBoard);
-    const newGame = new this.gameModel({
-      id: Date.now().toString(),
-      white: token,
-      black: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      moves: [],
-      board: initialBoard,
-      status: 'waiting',
-    });
-    await newGame.save();
-    return { game: newGame, isNew: true };
+      // Set gameId for both users
+      if (game.white != null) {
+        await this.userService.setGameId(game.white, game.id);
+      }
+      if (game.black != null) {
+        await this.userService.setGameId(game.black, game.id);
+      }
+      return { game, isNew: false };
+    } else {
+      // Create a new game
+      const initialBoard = await this.findInitialBoard();
+      const newGame = new this.gameModel({
+        id: Date.now().toString(),
+        white: token,
+        black: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        moves: [],
+        board: initialBoard,
+        status: 'waiting',
+      });
+      await newGame.save();
+
+      // Set gameId for white user
+      if (newGame.white != null) {
+        await this.userService.setGameId(newGame.white, newGame.id);
+      }
+
+      return { game: newGame, isNew: true };
+    }
   }
 
   getTurn(game: GameDto): 'white' | 'black' {

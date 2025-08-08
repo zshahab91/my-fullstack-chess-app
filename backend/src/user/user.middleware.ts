@@ -10,7 +10,6 @@ export class UserMiddleware implements NestMiddleware {
   ) {}
 
   use = async (req: any, res: any, next: () => void) => {
-    console.log('UserMiddleware:', req.headers['authorization']);
     const authHeader = req.headers['authorization'];
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ error: 'No token provided' });

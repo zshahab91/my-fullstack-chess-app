@@ -4,12 +4,9 @@ import { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
 import { v4 as uuidv4 } from 'uuid';
 
-
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async create(userData: Partial<User>): Promise<User> {
     const createdUser = new this.userModel(userData);
@@ -23,8 +20,15 @@ export class UserService {
   async findByNickName(nickName: string): Promise<User | null> {
     return this.userModel.findOne({ nickName }).exec();
   }
+  async setGameId(token: string, gameId: string): Promise<void> {
+    await this.userModel.findOneAndUpdate({ token }, { gameId }).exec();
+  }
 
-  async login({ nickName }: { nickName: string }): Promise<{ token: string } | { error: string }> {
+  async login({
+    nickName,
+  }: {
+    nickName: string;
+  }): Promise<{ token: string } | { error: string }> {
     // Example logic: find user or create new one
     let user = await this.findByNickName(nickName);
     if (!user) {

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { MoveDto, BoardDto } from '../dto/game.dto';
+import { MoveDto, BoardDto, BoardPositionDto } from '../dto/game.dto';
 
 @Schema({ timestamps: true })
 export class Game extends Document {
@@ -23,7 +23,7 @@ export class Game extends Document {
   moves: MoveDto[];
 
   @Prop({ type: [Object], default: [] })
-  board: BoardDto[];
+  board: BoardPositionDto[];
 
   @Prop({ enum: ['waiting', 'in-progress', 'finished'], required: true })
   status: 'waiting' | 'in-progress' | 'finished';
