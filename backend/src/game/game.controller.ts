@@ -28,7 +28,6 @@ export class GameController {
   @Post('start')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async start(@Req() req: any, @Res() res: Response) {
-    // console.log('GameController: start called');
     try {
       const token = req.user?.token;
       if (!token) {

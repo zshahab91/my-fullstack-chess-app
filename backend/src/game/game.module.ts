@@ -6,7 +6,6 @@ import { Game, GameSchema } from './schemas/game.schema';
 import { Board, BoardSchema } from './schemas/board.schema';
 import { UserModule } from '../user/user.module';
 import { SseModule } from '../sse/sse.module';
-import { SseService } from '../sse/sse.service';
 
 @Module({
   imports: [
@@ -18,7 +17,7 @@ import { SseService } from '../sse/sse.service';
     SseModule,
   ],
   controllers: [GameController],
-  providers: [GameService, SseService],
+  providers: [GameService],
   exports: [GameService],
 })
 export class GameModule {}

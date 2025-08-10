@@ -20,7 +20,6 @@ const GameStatus: React.FC<{ token: string }> = ({ token }) => {
     eventSource.onmessage = (event) => {
       try {
         const data: Message = JSON.parse(event.data);
-        console.log('Received SSE message:', data);
         // Save board in React Query if present
         if (data.board) {
           queryClient.setQueryData(['selectedBoard'], { positions: data.board });

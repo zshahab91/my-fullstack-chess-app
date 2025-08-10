@@ -125,8 +125,7 @@ export default function ChessBoard() {
   };
 
   // Add this at the top of your component, after hooks
-  const userColor = queryClient.getQueryData<{ color: string }>(["gameStatus"])?.color || "white";
-
+  const userColor = queryClient.getQueryData<{ color: string }>(["gameStatus"])?.color;
   // Flip the boardSquares if user is black
   const squaresToRender = userColor === "black" ? [...boardSquares].reverse() : boardSquares;
 
