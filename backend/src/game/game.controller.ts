@@ -36,8 +36,13 @@ export class GameController {
           .json({ error: 'Missing authorization token' });
       }
       const { game, isNew } = await this.gameService.startOrJoinGame({ token });
+      if (!isNew) {
+        return res.status(HttpStatus.NO_CONTENT).send(); // 204 No Content, no response body
+      }
+
       await this.sseService.sendGameStartMessages(game, this.userService);
       const response = await this.gameService.getGameResponse(game, token);
+      console.log('isNew:', isNew);
       return res.status(HttpStatus.OK).json({ ...response, isNew });
     } catch (error) {
       return res

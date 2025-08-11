@@ -23,6 +23,7 @@ export interface GameResponse {
   status: 'waiting' | 'in-progress' | 'finished';
   board: Piece[];
   opponent: string | null;
+  isNew: boolean;
 }
 export interface Move {
   from: string;
