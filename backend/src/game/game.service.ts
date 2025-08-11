@@ -90,7 +90,11 @@ export class GameService {
     const chess = new Chess(game.fen || undefined);
 
     // Validate and make the move
-    const result = chess.move({ from: move.from, to: move.to, promotion: 'q' });
+    const moveParams: any = { from: move.from, to: move.to };
+    if (move.piece && ['q', 'r', 'b', 'n'].includes(move.piece)) {
+      moveParams.promotion = move.piece;
+    }
+    const result = chess.move(moveParams);
     if (!result) {
       throw new HttpException(
         'Invalid move according to chess rules',
