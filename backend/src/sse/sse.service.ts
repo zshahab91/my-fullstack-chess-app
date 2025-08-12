@@ -53,6 +53,7 @@ export class SseService {
         board: game.board,
         opponent: blackUser ? blackUser.nickName : null,
         turn,
+        isNew: false,
       });
       this.sendToClient(game.black, {
         color: 'black',
@@ -61,6 +62,7 @@ export class SseService {
         board: game.board,
         opponent: whiteUser ? whiteUser.nickName : null,
         turn,
+        isNew: false,
       });
     } else if (movingUser && movingUser.token === game.black && game.white) {
       this.sendToClient(game.black, {
@@ -70,6 +72,7 @@ export class SseService {
         board: game.board,
         opponent: whiteUser ? whiteUser.nickName : null,
         turn,
+        isNew: false,
       });
       this.sendToClient(game.white, {
         color: 'white',
@@ -78,6 +81,7 @@ export class SseService {
         board: game.board,
         opponent: blackUser ? blackUser.nickName : null,
         turn,
+        isNew: false,
       });
     }
   }
@@ -99,6 +103,7 @@ export class SseService {
         color: 'white',
         opponent: blackUser ? blackUser.nickName : null,
         board: game.board,
+        isNew: false, // <-- set false for existing game
       });
     }
 
@@ -110,6 +115,7 @@ export class SseService {
         color: 'black',
         opponent: whiteUser ? whiteUser.nickName : null,
         board: game.board,
+        isNew: false, // <-- set false for existing game
       });
     }
   }

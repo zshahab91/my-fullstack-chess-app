@@ -1,10 +1,13 @@
+import { Move } from "./chessType";
+
 export interface SSEMessage {
   color?: 'white' | 'black';
   message: string;
   status: string;
-  board: any[];
+  board: Move[];
   opponent?: string | null;
   turn?: 'white' | 'black';
+  isNew: boolean;
 }
 export type SSEContextType = {
   message: SSEMessage | null;
@@ -17,4 +20,5 @@ export const initialSSEMessage: SSEMessage = {
   opponent: null,
   color: undefined,
   turn: undefined,
+  isNew: false,
 };

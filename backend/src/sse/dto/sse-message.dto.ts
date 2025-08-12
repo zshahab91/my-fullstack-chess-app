@@ -5,4 +5,5 @@ export class SseMessageDto {
   board: any[];
   opponent?: string | null;
   turn?: 'white' | 'black';
+  isNew: boolean;
 }

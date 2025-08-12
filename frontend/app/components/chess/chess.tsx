@@ -1,8 +1,14 @@
 import { useGetGameStatus } from "@/app/services/useGetGameStatus";
 import SidebarClient from "../sidebar/sidebarClient";
 import ChessBoard from "../chessboard/chessBoard";
+import { useSSE } from "@/app/context/SSEContext";
+
 export default function Chess() {
-    const { data: gameStatus, isLoading, isError } = useGetGameStatus();
+    const sseContext = useSSE();
+    const message = sseContext?.message;
+    console.log("SSE Message:", message);
+    const { data: gameStatus, isLoading, isError } = useGetGameStatus(message?.isNew);
+
     if (isLoading) {
         return <div>Loading game...</div>;
     }

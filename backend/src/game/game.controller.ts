@@ -44,7 +44,33 @@ export class GameController {
         .json({ error: error.message });
     }
   }
+  @Get('status')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async getGameStatus(@Req() req: any, @Res() res: Response) {
+    try {
+      const token = req.user?.token;
+      if (!token) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ error: 'Missing authorization token' });
+      }
+      const game = await this.gameService.findGameByToken(token);
 
+      if (!game) {
+        return res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ error: 'Game not found' });
+      }
+      await this.sseService.sendGameStartMessages(game, this.userService);
+      const response = await this.gameService.getGameResponse(game, token);
+      return res.status(HttpStatus.OK).json(response);
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: error.message });
+    }
+  }
+  
   @Patch('move')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async move(
@@ -69,29 +95,6 @@ export class GameController {
     } catch (error) {
       return res
         .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ error: error.message });
-    }
-  }
-
-  @Get('status')
-  @UsePipes(new ValidationPipe({ whitelist: true }))
-  async getGameStatus(@Req() req: any, @Res() res: Response) {
-    try {
-      const token = req.user?.token;
-      if (!token) {
-        return res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ error: 'Missing authorization token' });
-      }
-      const game = await this.gameService.findGameByToken(token);
-      if (!game) {
-        return res.status(HttpStatus.NOT_FOUND).json({ error: 'Game not found' });
-      }
-      const response = await this.gameService.getGameResponse(game, token);
-      return res.status(HttpStatus.OK).json(response);
-    } catch (error) {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ error: error.message });
     }
   }

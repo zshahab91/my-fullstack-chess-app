@@ -1,10 +1,10 @@
 import axios from "axios";
 import { setAuthToken as setInterceptorAuthToken } from "./apiInterceptor";
-import type { GameResponse, Move } from '../interfaces/chessType';
+import type { GameResponse, Move } from "../interfaces/chessType";
 import { cleanErrorMessage } from "../utils/global";
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3100/api"; // adjust port if needed
-
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3100/api"; // adjust port if needed
 
 const setAuthToken = (token: string) => {
   setInterceptorAuthToken(token);
@@ -34,7 +34,7 @@ export const apiService = {
       // Otherwise, throw the generic error
       throw new Error(
         cleanErrorMessage(
-          (typeof error === "object" && error !== null && "message" in error)
+          typeof error === "object" && error !== null && "message" in error
             ? (error as any).message
             : "An error occurred while fetching the board"
         )
@@ -67,9 +67,32 @@ export const apiService = {
       // Otherwise, throw the generic error
       throw new Error(
         cleanErrorMessage(
-          (typeof error === "object" && error !== null && "message" in error)
+          typeof error === "object" && error !== null && "message" in error
             ? (error as any).message
             : "An error occurred while logging in"
+        )
+      );
+    }
+  },
+  startGame: async (): Promise<any> => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/game/start`);
+      return response.data;
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        (error as any).response.data &&
+        (error as any).response.data.error
+      ) {
+        throw new Error(cleanErrorMessage((error as any).response.data.error));
+      }
+      throw new Error(
+        cleanErrorMessage(
+          typeof error === "object" && error !== null && "message" in error
+            ? (error as any).message
+            : "An error occurred while starting the game"
         )
       );
     }
@@ -94,7 +117,7 @@ export const apiService = {
       // Otherwise, throw the generic error
       throw new Error(
         cleanErrorMessage(
-          (typeof error === "object" && error !== null && "message" in error)
+          typeof error === "object" && error !== null && "message" in error
             ? (error as any).message
             : "An error occurred while starting the game"
         )
@@ -120,7 +143,7 @@ export const apiService = {
       // Otherwise, throw the generic error
       throw new Error(
         cleanErrorMessage(
-          (typeof error === "object" && error !== null && "message" in error)
+          typeof error === "object" && error !== null && "message" in error
             ? (error as any).message
             : "An error occurred while moving the piece"
         )
@@ -128,4 +151,3 @@ export const apiService = {
     }
   },
 };
-

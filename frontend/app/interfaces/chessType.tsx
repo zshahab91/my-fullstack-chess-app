@@ -18,18 +18,25 @@ export interface Message {
   board?: any;
   [key: string]: any;
 }
-export interface GameResponse {
-  color: 'white' | 'black';
-  status: 'waiting' | 'in-progress' | 'finished';
-  board: Piece[];
-  opponent: string | null;
-  isNew: boolean;
+export interface BoardPosition{
+    piece: string;
+    position: string;
+    color: string;
 }
 export interface Move {
   from: string;
   to: string;
   piece: string;
+  color: string;
+}
+export interface GameResponse {
   color: 'white' | 'black';
+  status: string;
+  board?: BoardPosition[];
+  move?: Move[];
+  message?: string;
+  opponent?: string | null;
+  isNew?: boolean;
 }
 
 export const boardSquares = [
