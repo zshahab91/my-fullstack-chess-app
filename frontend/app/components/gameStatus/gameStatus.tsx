@@ -6,6 +6,7 @@ const GameStatus: React.FC = () => {
    const sse = useSSE();
    const connected = sse?.connected ?? false;
    const safeMessages: SSEMessage = sse?.message ?? initialSSEMessage;
+   const excludeKeys = ["color", "board", "isNew"];
   return (
     <div className="p-4 border rounded">
       <div className="flex items-center justify-between">
@@ -27,7 +28,7 @@ const GameStatus: React.FC = () => {
 
       <ul className="mt-4 list-disc pl-5 space-y-1">
         {Object.entries(safeMessages).map(([key, msg], idx) =>
-          key !== "color" && key !== 'board' ? (
+          !excludeKeys.includes(key) ? (
             <li key={idx} className="text-sm">
               <strong>{key}:</strong> {msg ? msg.toString() : '-'}
             </li>

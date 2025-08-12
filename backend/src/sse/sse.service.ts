@@ -93,6 +93,7 @@ export class SseService {
     const blackUser = game.black
       ? await userService.findByToken(game.black)
       : null;
+       const turn = this.getTurn(game);
     // Notify white player if present
     if (whiteUser?.token) {
       this.sendToClient(whiteUser.token, {
@@ -104,6 +105,7 @@ export class SseService {
         opponent: blackUser ? blackUser.nickName : null,
         board: game.board,
         isNew: false, // <-- set false for existing game
+        turn
       });
     }
 
@@ -116,6 +118,7 @@ export class SseService {
         opponent: whiteUser ? whiteUser.nickName : null,
         board: game.board,
         isNew: false, // <-- set false for existing game
+        turn
       });
     }
   }
