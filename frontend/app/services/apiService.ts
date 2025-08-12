@@ -77,7 +77,7 @@ export const apiService = {
   setAuthToken,
   getGameStatus: async (): Promise<GameResponse> => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/game/status`);
+      const response = await axios.get(`${API_BASE_URL}/game/status`);
       return response.data;
     } catch (error: unknown) {
       // Axios wraps backend errors in error.response

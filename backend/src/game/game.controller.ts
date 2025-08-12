@@ -25,9 +25,9 @@ export class GameController {
     private readonly userService: UserService,
   ) {}
 
-  @Post('status')
+  @Post('start')
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  async getStatus(@Req() req: any, @Res() res: Response) {
+  async startGame(@Req() req: any, @Res() res: Response) {
     try {
       const token = req.user?.token;
       if (!token) {
@@ -37,8 +37,7 @@ export class GameController {
       }
       const { game, isNew } = await this.gameService.startOrJoinGame({ token });
       await this.sseService.sendGameStartMessages(game, this.userService);
-      const response = await this.gameService.getGameResponse(game, token);
-      return res.status(HttpStatus.OK).json({ ...response, isNew });
+      return res.status(HttpStatus.OK).json({ game, isNew });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -70,6 +69,29 @@ export class GameController {
     } catch (error) {
       return res
         .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: error.message });
+    }
+  }
+
+  @Get('status')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async getGameStatus(@Req() req: any, @Res() res: Response) {
+    try {
+      const token = req.user?.token;
+      if (!token) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ error: 'Missing authorization token' });
+      }
+      const game = await this.gameService.findGameByToken(token);
+      if (!game) {
+        return res.status(HttpStatus.NOT_FOUND).json({ error: 'Game not found' });
+      }
+      const response = await this.gameService.getGameResponse(game, token);
+      return res.status(HttpStatus.OK).json(response);
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ error: error.message });
     }
   }
