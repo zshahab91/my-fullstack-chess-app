@@ -10,7 +10,6 @@ cd frontend && npm run dev
 
 ### Frontend
 - React
-- React Query
 - Next.js
 - TypeScript
 - Tailwind CSS
