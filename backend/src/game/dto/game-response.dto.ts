@@ -1,4 +1,4 @@
-import { BoardDto, BoardPositionDto } from './game.dto';
+import { BoardPositionDto } from './game.dto';
 
 export class GameResponseDto {
   color: 'white' | 'black';
@@ -6,4 +6,5 @@ export class GameResponseDto {
   board?: BoardPositionDto[];
   message?: string;
   opponent?: string | null;
+  isNew?: boolean;
 }

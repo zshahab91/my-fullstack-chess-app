@@ -60,6 +60,7 @@ export class GameService {
       status: game.status,
       board: game.board,
       opponent: opponentNickName,
+      isNew: game.status === 'waiting' ? true : false,
     };
   }
 

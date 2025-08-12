@@ -1,49 +1,40 @@
 "use client";
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { boardSquares, ChessBoardProps } from "@/app/interfaces/chessType";
+import { boardSquares } from "@/app/interfaces/chessType";
 import { getPieceSymbol } from "@/app/utils/global";
 import { apiService } from "@/app/services/apiService";
 import { toast } from "react-toastify";
-
+import { useSSE } from "@/app/context/SSEContext";
+import { initialSSEMessage, SSEMessage } from "@/app/interfaces/sseMessage";
 
 export default function ChessBoard() {
-  const queryClient = useQueryClient();
-  const { data: selectedBoard = { positions: [] } } = useQuery<ChessBoardProps>({
-    queryKey: ["selectedBoard"],
-    queryFn: async () => ({ positions: [] }), // ← dummy fetcher
-    enabled: false,
-    initialData: { positions: [] },
-  });
-
-
-  const boardPositions = selectedBoard?.positions || [];
+  const sse = useSSE();
+  const safeMessages: SSEMessage = sse?.message ?? initialSSEMessage;
+  const boardPositions = safeMessages.board;
+  const userColor = safeMessages.color;
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
+
+  // Flip the boardSquares if user is black
+  const squaresToRender = userColor === "black" ? [...boardSquares].reverse() : boardSquares;
 
   // Find piece at a given square
   const getPieceAt = (square: string) =>
     boardPositions.find((p: any) => p.position === square);
 
-  // Handle square click (for fallback or tap)
+  // Handle square click
   const handleSquareClick = async (square: string) => {
     const selectedPiece = selectedSquare ? getPieceAt(selectedSquare) : null;
     const targetPiece = getPieceAt(square);
 
-    // If no piece is selected and clicked square has a piece, select it
     if (!selectedSquare && targetPiece) {
       setSelectedSquare(square);
       return;
     }
-
-    // If a piece is selected and user clicks the same square, deselect
     if (selectedSquare === square) {
       setSelectedSquare(null);
       return;
     }
-
-    // If a piece is selected and user clicks an empty square, try to move
     if (selectedSquare && !targetPiece && selectedPiece) {
-      // Prepare move object
       const move = {
         from: selectedSquare,
         to: square,
@@ -52,9 +43,7 @@ export default function ChessBoard() {
       };
       try {
         const data = await apiService.movePiece(move);
-        if (data.board) {
-          queryClient.setQueryData(["selectedBoard"], { positions: data.board });
-        } else if (data.error) {
+        if (data.error) {
           toast.error(data.error.message || 'Move failed');
         }
       } catch (error: any) {
@@ -63,8 +52,6 @@ export default function ChessBoard() {
       setSelectedSquare(null);
       return;
     }
-
-    // If a piece is selected and user clicks another piece, select new piece
     if (selectedSquare && targetPiece) {
       setSelectedSquare(square);
       return;
@@ -84,7 +71,6 @@ export default function ChessBoard() {
       const fromPiece = getPieceAt(fromSquare);
       const targetPiece = getPieceAt(square);
 
-      // If destination has a piece of different color, allow capture
       if (
         fromPiece &&
         targetPiece &&
@@ -98,9 +84,7 @@ export default function ChessBoard() {
         };
         try {
           const data = await apiService.movePiece(move);
-          if (data.board) {
-            queryClient.setQueryData(["selectedBoard"], { positions: data.board });
-          } else if (data.error) {
+          if (data.error) {
             toast.error(data.error.message || "Move failed");
           }
         } catch (error: any) {
@@ -109,8 +93,6 @@ export default function ChessBoard() {
         setSelectedSquare(null);
         return;
       }
-
-      // If destination is empty, allow normal move
       if (fromPiece && !targetPiece) {
         await handleSquareClick(square);
         setSelectedSquare(null);
@@ -123,11 +105,6 @@ export default function ChessBoard() {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
-
-  // Add this at the top of your component, after hooks
-  const userColor = queryClient.getQueryData<{ color: string }>(["gameStatus"])?.color;
-  // Flip the boardSquares if user is black
-  const squaresToRender = userColor === "black" ? [...boardSquares].reverse() : boardSquares;
 
   return (
     <div className="grid grid-cols-8 grid-rows-8 border-2 border-gray-700 w-160 h-160">

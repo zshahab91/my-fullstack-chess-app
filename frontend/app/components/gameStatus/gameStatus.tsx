@@ -1,66 +1,22 @@
-import { API_BASE_URL } from '@/app/services/apiService';
-import React, { useEffect, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { Message } from '@/app/interfaces/chessType';
+import React from 'react';
+import { useSSE } from '@/app/context/SSEContext';
+import { initialSSEMessage, SSEMessage } from '@/app/interfaces/sseMessage';
 
-
-const GameStatus: React.FC<{ token: string }> = ({ token }) => {
-  const [messages, setMessages] = useState<Message>({});
-  const [connected, setConnected] = useState(false);
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    // Read initial gameStatus from React Query cache
-    const cachedStatus = queryClient.getQueryData<Message>(['gameStatus']);
-    if (cachedStatus) {
-      const { board, ...rest } = cachedStatus;
-      setMessages(rest);
-      if (board) {
-        queryClient.setQueryData(['selectedBoard'], { positions: board });
-      }
-    }
-
-    // SSE connection as before
-    const eventSource = new EventSource(`${API_BASE_URL}/sse/stream?token=${token}`);
-    eventSource.onopen = () => {
-      setConnected(true);
-    };
-
-    eventSource.onmessage = (event) => {
-      try {
-        const data: Message = JSON.parse(event.data);
-        if (data.board) {
-          queryClient.setQueryData(['selectedBoard'], { positions: data.board });
-        }
-        const { board, ...rest } = data;
-        setMessages(rest);
-      } catch (err) {
-        setMessages({ message: event.data });
-      }
-    };
-
-    eventSource.onerror = (err) => {
-      eventSource.close();
-      setConnected(false);
-    };
-
-    return () => {
-      eventSource.close();
-    };
-  }, [token, queryClient]);
-
-
+const GameStatus: React.FC = () => {
+   const sse = useSSE();
+   const connected = sse?.connected ?? false;
+   const safeMessages: SSEMessage = sse?.message ?? initialSSEMessage;
   return (
     <div className="p-4 border rounded">
       <div className="flex items-center justify-between">
         {/* Status on the left */}
         <span>Status: {connected ? '🟢 Connected' : '🔴 Disconnected'}</span>
         {/* Player color with a colored circle on the right */}
-        {"color" in messages && (
+        {"color" in safeMessages && (
           <div className="flex items-center">
             <span className="capitalize text-sm mr-2">Your color:</span>
             <span
-              className={`inline-block w-5 h-5 rounded-full  ${messages.color === "white"
+              className={`inline-block w-5 h-5 rounded-full  ${safeMessages.color === "white"
                 ? "bg-white border border-gray-800 border-solid"
                 : "bg-black border border-gray-100 border-solid"
                 }`}
@@ -70,8 +26,8 @@ const GameStatus: React.FC<{ token: string }> = ({ token }) => {
       </div>
 
       <ul className="mt-4 list-disc pl-5 space-y-1">
-        {Object.entries(messages).map(([key, msg], idx) =>
-          key !== "color" ? (
+        {Object.entries(safeMessages).map(([key, msg], idx) =>
+          key !== "color" && key !== 'board' ? (
             <li key={idx} className="text-sm">
               <strong>{key}:</strong> {msg ? msg.toString() : '-'}
             </li>

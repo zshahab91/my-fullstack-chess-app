@@ -1,13 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 
 export default function Header() {
   const [nickName, setNickName] = useState<string | null>(null);
   const router = useRouter();
-  const queryClient = useQueryClient();
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       setNickName(sessionStorage.getItem("chess_nickName"));
@@ -16,7 +13,6 @@ export default function Header() {
 
   const handleLogout = () => {
     sessionStorage.clear();
-    queryClient.clear();
     router.replace("/login");
   };
 

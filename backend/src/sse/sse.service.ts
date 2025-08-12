@@ -26,6 +26,7 @@ export class SseService {
       data: JSON.stringify(data),
       type: 'message',
     };
+
     if (subject) {
       subject.next(messageEvent);
     }
@@ -46,28 +47,36 @@ export class SseService {
     // Notify both players about the move
     if (movingUser && movingUser.token === game.white && game.black) {
       this.sendToClient(game.white, {
+        color: 'white',
         message: 'Please wait for your opponent to move',
         status: game.status,
         board: game.board,
+        opponent: blackUser ? blackUser.nickName : null,
         turn,
       });
       this.sendToClient(game.black, {
+        color: 'black',
         message: `Move made by ${whiteUser?.nickName || 'opponent'}, it's your turn!`,
         status: game.status,
         board: game.board,
+        opponent: whiteUser ? whiteUser.nickName : null,
         turn,
       });
     } else if (movingUser && movingUser.token === game.black && game.white) {
       this.sendToClient(game.black, {
+        color: 'black',
         message: 'Please wait for your opponent to move',
         status: game.status,
         board: game.board,
+        opponent: whiteUser ? whiteUser.nickName : null,
         turn,
       });
       this.sendToClient(game.white, {
+        color: 'white',
         message: `Move made by ${blackUser?.nickName || 'opponent'}, it's your turn!`,
         status: game.status,
         board: game.board,
+        opponent: blackUser ? blackUser.nickName : null,
         turn,
       });
     }

@@ -75,9 +75,9 @@ export const apiService = {
     }
   },
   setAuthToken,
-  startGame: async (): Promise<GameResponse> => {
+  getGameStatus: async (): Promise<GameResponse> => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/game/start`);
+      const response = await axios.post(`${API_BASE_URL}/game/status`);
       return response.data;
     } catch (error: unknown) {
       // Axios wraps backend errors in error.response
@@ -127,36 +127,5 @@ export const apiService = {
       );
     }
   },
-  getGameByToken: async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/game/status`);
-      return response.data;
-    } catch (error: unknown) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "response" in error &&
-        (error as any).response.data &&
-        (error as any).response.data.error
-      ) {
-        throw new Error(cleanErrorMessage((error as any).response.data.error));
-      }
-      throw new Error(
-        cleanErrorMessage(
-          (typeof error === "object" && error !== null && "message" in error)
-            ? (error as any).message
-            : "An error occurred while fetching the game by token"
-        )
-      );
-    }
-  },
-  getHello: async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/game/test`);
-      return response.data;
-    } catch (error: unknown) {
-      
-    }
-  }
 };
 
