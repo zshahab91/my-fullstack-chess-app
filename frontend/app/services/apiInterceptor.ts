@@ -33,3 +33,29 @@ axios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const isAxiosError = (
+  error: unknown
+): error is { response: { data: { error?: string } } } => {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: unknown }).response === "object" &&
+    (error as { response?: { data?: unknown } }).response !== null &&
+    "data" in (error as { response: { data?: unknown } }).response!
+  );
+}
+
+export function isAxiosErrorWithBackendError(
+  error: unknown
+): error is { response: { data: { error?: string }; }; } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: unknown }).response === "object" &&
+    (error as { response?: { data?: unknown } }).response !== null &&
+    "data" in (error as { response: { data?: unknown } }).response!
+  );
+}

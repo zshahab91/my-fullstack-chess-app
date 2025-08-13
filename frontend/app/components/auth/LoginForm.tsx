@@ -15,13 +15,15 @@ export default function LoginForm({ onLogin }: { onLogin?: (nickName: string) =>
     setError(null);
 
     try {
-      // Use the apiService for login
       await apiService.login(nickName);
       toast.success('Login successful!');
-      // Call start service after login
       if (onLogin) onLogin(nickName);
-    } catch (err: any) {
-      toast.error(err.message || 'Login failed');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message || 'Login failed');
+      } else {
+        toast.error('Login failed');
+      }
     } finally {
       inProgress.current = false;
     }

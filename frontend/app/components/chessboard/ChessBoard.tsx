@@ -1,16 +1,18 @@
 "use client";
 import { useState } from "react";
-import { boardSquares } from "@/app/interfaces/chessType";
+import { BoardPosition, boardSquares } from "@/app/interfaces/chessType";
 import { getPieceSymbol } from "@/app/utils/global";
 import { apiService } from "@/app/services/apiService";
 import { toast } from "react-toastify";
 import { useSSE } from "@/app/context/SSEContext";
 import { initialSSEMessage, SSEMessage } from "@/app/interfaces/sseMessage";
 
+
+
 export default function ChessBoard() {
   const sse = useSSE();
   const safeMessages: SSEMessage = sse?.message ?? initialSSEMessage;
-  const boardPositions = safeMessages.board;
+  const boardPositions: BoardPosition[] = safeMessages.board as unknown as BoardPosition[];
   const userColor = safeMessages.color;
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
 
@@ -18,8 +20,8 @@ export default function ChessBoard() {
   const squaresToRender = userColor === "black" ? [...boardSquares].reverse() : boardSquares;
 
   // Find piece at a given square
-  const getPieceAt = (square: string) =>
-    boardPositions.find((p: any) => p.position === square);
+  const getPieceAt = (square: string): BoardPosition | undefined =>
+    boardPositions.find((p: BoardPosition) => p.position === square);
 
   // Handle square click
   const handleSquareClick = async (square: string) => {
@@ -46,8 +48,12 @@ export default function ChessBoard() {
         if (data.error) {
           toast.error(data.error.message || 'Move failed');
         }
-      } catch (error: any) {
-        toast.error(error.message || "Network error");
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message || "Network error");
+        } else {
+          toast.error("Network error");
+        }
       }
       setSelectedSquare(null);
       return;
@@ -87,8 +93,12 @@ export default function ChessBoard() {
           if (data.error) {
             toast.error(data.error.message || "Move failed");
           }
-        } catch (error: any) {
-          toast.error(error.message || "Network error");
+        } catch (error) {
+          if (error instanceof Error) {
+            toast.error(error.message || "Network error");
+          } else {
+            toast.error("Network error");
+          }
         }
         setSelectedSquare(null);
         return;

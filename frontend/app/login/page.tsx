@@ -23,9 +23,13 @@ export default function LoginPage() {
     const handleLoginSubmit = async (nickName: string) => {
         try {
             const data = await apiService.login(nickName);
-            handleLogin(nickName,data.token);
-        } catch (error: any) {
-            toast.error(error.message || "Login failed");
+            handleLogin(nickName, data.token);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                toast.error(error.message || "Login failed");
+            } else {
+                toast.error("Login failed");
+            }
         }
     };
     return (

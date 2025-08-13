@@ -15,8 +15,8 @@ export type Board = {
 export interface Message {
   message?: string;
   update?: string;
-  board?: any;
-  [key: string]: any;
+  board?: BoardPosition[];
+  [key: string]: string | BoardPosition[] | undefined;
 }
 export interface BoardPosition{
     piece: string;
@@ -37,6 +37,11 @@ export interface GameResponse {
   message?: string;
   opponent?: string | null;
   isNew?: boolean;
+}
+
+export interface StartGameResponse {
+  game: GameResponse;
+  isNew: boolean;
 }
 
 export const boardSquares = [
