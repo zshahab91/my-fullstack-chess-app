@@ -1,6 +1,6 @@
 [build]
   command = "npm rebuild lightningcss && npm run build"
-  publish = "out"
+  publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "22" # or match your local version
+  NODE_VERSION = "22"
