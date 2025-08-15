@@ -1,7 +1,7 @@
 [build]
-  base = "frontend"                 # Focus Netlify in the frontend folder
-  command = "npm install && npm run build"
-  publish = ".next"               # or "out" if you use next export
+  command = "node -v && npm install && npm run build"
+  base = "frontend"
+  publish = "frontend/.next"
 
 [build.environment]
   NODE_VERSION = "22"
