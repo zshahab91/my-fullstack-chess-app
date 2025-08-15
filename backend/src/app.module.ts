@@ -16,7 +16,7 @@ import { User, UserSchema } from './user/schemas/user.schema';
   imports: [
     UserModule,
     GameModule,
-    MongooseModule.forRoot('mongodb://localhost:27017/chess-app'), // replace with your MongoDB URI
+    MongooseModule.forRoot('mongodb+srv://zshahab91:eDruVMTooU8bX7ox@cluster0.guwdfvk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'), // replace with your MongoDB URI
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   controllers: [AppController], // <-- Remove SseController here
