@@ -1,6 +1,11 @@
 [build]
-  command = "npm rebuild lightningcss && npm run build"
-  publish = ".next"
+  base = "frontend"                 # Focus Netlify in the frontend folder
+  command = "npm install && npm run build"
+  publish = ".next"               # or "out" if you use next export
 
 [build.environment]
   NODE_VERSION = "22"
+
+# (Optional) Use Next.js plugin
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
