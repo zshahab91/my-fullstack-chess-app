@@ -4,7 +4,7 @@ import type { GameResponse, Move, StartGameResponse } from "../interfaces/chessT
 import { cleanErrorMessage } from "../utils/global";
 
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3100/api"; // adjust port if needed
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3200/api"; // adjust port if needed
 
 const setAuthToken = (token: string) => {
   setInterceptorAuthToken(token);
