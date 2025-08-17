@@ -2,6 +2,12 @@ node_modules/
 dist/
 .next/
 .env
+/backend/node_modules/
+/backend/dist/
+/backend/env/.env.development
+/backend/env/.env.production
+
+
 
 # Ignore frontend build and environment files
 /frontend/node_modules/

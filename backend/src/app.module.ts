@@ -32,10 +32,10 @@ import { User, UserSchema } from './user/schemas/user.schema';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        console.log('Connecting to database...', config.get('DATABASE_URL'));
-        const dbUrl = config.get<string>('DATABASE_URL') ?? process.env.DATABASE_URL;
+        console.log('Connecting to database...', config.get('MONGO_URI'));
+        const dbUrl = config.get<string>('MONGO_URI') ?? process.env.MONGO_URI;
         if (!dbUrl) {
-          throw new Error('DATABASE_URL is not set in environment');
+          throw new Error('MONGO_URI is not set in environment');
         }
         return { uri: dbUrl };
       },
