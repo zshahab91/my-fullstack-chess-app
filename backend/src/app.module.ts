@@ -22,6 +22,7 @@ import { User, UserSchema } from './user/schemas/user.schema';
     // load the env file that matches NODE_ENV (default to development)
     ConfigModule.forRoot({
       isGlobal: true,
+      ignoreEnvFile: true,
       envFilePath: [
         // resolve from project root to the src/env folder where your .env files live
         path.resolve(process.cwd(), `src/env/.env.${process.env.NODE_ENV ?? 'development'}`),
