@@ -16,7 +16,10 @@ import { UserMiddleware } from './user/user.middleware';
 import { User, UserSchema } from './user/schemas/user.schema';
 
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
-const candidateEnvPath = path.resolve(process.cwd(), `src/env/.env.${NODE_ENV}`);
+const candidateEnvPath = path.resolve(
+  process.cwd(),
+  `src/env/.env.${NODE_ENV}`,
+);
 const envFileExists = fs.existsSync(candidateEnvPath);
 const envFilePath = envFileExists ? [candidateEnvPath] : undefined;
 
@@ -36,11 +39,29 @@ const envFilePath = envFileExists ? [candidateEnvPath] : undefined;
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        // prefer values from ConfigService (which wraps process.env), fallback to raw process.env
-        const dbUrl = config.get<string>('MONGO_URI') ?? process.env.MONGO_URI;
-        if (!dbUrl) {
-          throw new Error(`MONGO_URI is not set in environment (NODE_ENV=${NODE_ENV})`);
-        }
+        // Build from components
+        const protocol = config.get<string>('DB_PROTOCOL') ?? 'mongodb';
+        let host = config.get<string>('DB_HOST') ?? 'localhost';
+        const port = config.get<string>('DB_PORT') ?? '27017';
+        const name = config.get<string>('DB_NAME') ?? 'chess-app';
+
+        // remove any accidental leading @ from host
+        host = host.replace(/^@+/, '');
+
+        const user = config.get<string>('DB_USER');
+        const pass = config.get<string>('DB_PASS');
+
+        const credentials =
+          user && pass
+            ? `${encodeURIComponent(user)}:${encodeURIComponent(pass)}@`
+            : '';
+
+        // mongodb+srv must not include port and uses host only
+        const isSrv = protocol.includes('+srv');
+
+        const dbUrl = isSrv
+          ? `${protocol}://${credentials}${host}/${name}?retryWrites=true&w=majority`
+          : `${protocol}://${credentials}${host}:${port}/${name}?retryWrites=true&w=majority`;
         return { uri: dbUrl };
       },
     }),
