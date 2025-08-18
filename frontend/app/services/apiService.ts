@@ -3,9 +3,9 @@ import { isAxiosErrorWithBackendError, setAuthToken as setInterceptorAuthToken }
 import type { GameResponse, Move, StartGameResponse } from "../interfaces/chessType";
 import { cleanErrorMessage } from "../utils/global";
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3200/api"; // adjust port if needed
-
+// Use the NEXT_PUBLIC_API_URL injected at build time by next.config.ts
+export const API_BASE_URL: string =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3200/api";
 const setAuthToken = (token: string) => {
   setInterceptorAuthToken(token);
 };
