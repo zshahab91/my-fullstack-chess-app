@@ -6,8 +6,11 @@
     "backend"
   ],
   "scripts": {
-    "build": "npm run build:backend && npm run build:frontend",
-    "build:backend": "npm --workspace backend run build",
-    "build:frontend": "npm --workspace frontend run build"
-  }
+  "install": "npm install --workspace backend && npm install --workspace frontend",
+  "build": "npm run build:frontend && npm run build:backend",
+  "build:frontend": "npm --workspace frontend run build",
+  "build:backend": "npm --workspace backend run build",
+  "start": "node backend/dist/main.js"
+}
+  
 }
