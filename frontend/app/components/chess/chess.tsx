@@ -6,7 +6,6 @@ import ChessBoard from '../chessboard/chessBoard';
 export default function Chess() {
     const sseContext = useSSE();
     const message = sseContext?.message;
-    console.log("SSE Message:", message);
     const { data: gameStatus, isLoading, isError } = useGetGameStatus(message?.isNew);
 
     if (isLoading) {
