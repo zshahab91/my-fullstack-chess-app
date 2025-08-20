@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000",
-    "start:dev": "cross-env NODE_ENV=development next dev -p 3000",
+    "dev": "next dev -p 3500",
+    "start:dev": "cross-env NODE_ENV=development next dev -p 3500",
     "build": "next build",
-    "start:prod": "cross-env NODE_ENV=production next build && cross-env NODE_ENV=production next start -p 3000",
-    "start": "next start -p 3000",
+    "start:prod": "cross-env NODE_ENV=production next build && cross-env NODE_ENV=production next start -p 3500",
+    "start": "next start -p 3500",
     "lint": "next lint"
   },
   "dependencies": {
