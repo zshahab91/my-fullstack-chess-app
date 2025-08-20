@@ -1,7 +1,7 @@
 import { useGetGameStatus } from "@/app/services/useGetGameStatus";
-import SidebarClient from "../sidebar/sidebarClient";
-import ChessBoard from "../chessboard/chessBoard";
 import { useSSE } from "@/app/context/SSEContext";
+import SidebarClient from '../sidebar/sidebarClient';
+import ChessBoard from '../chessboard/chessBoard';
 
 export default function Chess() {
     const sseContext = useSSE();
