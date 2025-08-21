@@ -1,0 +1,19 @@
+{
+  "name": "my-fullstack-chess-app",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "installold": "npm i --workspace backend --omit=dev && npm i --workspace frontend --omit=dev",
+    "build":  "npm run build:backend && npm run build:frontend",
+    "build:frontend": "npm --workspace frontend run build",
+    "build:backend": "npm --workspace backend run build",
+    "start": "node backend/dist/main.js"
+  },
+  "engines": {
+    "node": "22.x",
+    "npm": "10.x"
+  }
+}
