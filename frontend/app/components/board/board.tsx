@@ -9,7 +9,7 @@ import { initialSSEMessage, SSEMessage } from "@/app/interfaces/sseMessage";
 
 
 
-export default function ChessBoard() {
+export default function Board() {
   const sse = useSSE();
   const safeMessages: SSEMessage = sse?.message ?? initialSSEMessage;
   const boardPositions: BoardPosition[] = safeMessages.board as unknown as BoardPosition[];

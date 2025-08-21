@@ -1,7 +1,7 @@
 import { useGetGameStatus } from "@/app/services/useGetGameStatus";
 import { useSSE } from "@/app/context/SSEContext";
 import Sidebar from '../sidebar/sidebar';
-import ChessBoard from '../chessboard/chessBoard';
+import Board from '../board/board';
 
 export default function Chess() {
     const sseContext = useSSE();
@@ -21,7 +21,7 @@ export default function Chess() {
     return (
         <>
             <Sidebar />
-            <ChessBoard />
+            <Board />
         </>
     );
 }
