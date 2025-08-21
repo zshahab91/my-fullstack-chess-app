@@ -6,7 +6,7 @@
     "backend"
   ],
   "scripts": {
-    "install": "npm ci --workspace backend --omit=dev",
+    "install": "npm i --workspace backend --omit=dev",
     "build":  "npm run build:backend",
     "build:frontend": "npm --workspace frontend run build",
     "build:backend": "npm --workspace backend run build",
