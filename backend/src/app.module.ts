@@ -16,6 +16,7 @@ import { UserMiddleware } from './user/user.middleware';
 import { User, UserSchema } from './user/schemas/user.schema';
 
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
+console.log('NODE_ENV:', NODE_ENV);
 const candidateEnvPath = path.resolve(
   process.cwd(),
   `src/env/.env.${NODE_ENV}`,
@@ -55,13 +56,15 @@ const envFilePath = envFileExists ? [candidateEnvPath] : undefined;
           user && pass
             ? `${encodeURIComponent(user)}:${encodeURIComponent(pass)}@`
             : '';
-
+console.log('DB Credentials:', credentials);
         // mongodb+srv must not include port and uses host only
         const isSrv = protocol.includes('+srv');
 
         const dbUrl = isSrv
           ? `${protocol}://${credentials}${host}/${name}?retryWrites=true&w=majority`
           : `${protocol}://${credentials}${host}:${port}/${name}?retryWrites=true&w=majority`;
+console.log('dbUrl:', dbUrl);
+
         return { uri: dbUrl };
       },
     }),
