@@ -19,10 +19,10 @@ const NODE_ENV = process.env.NODE_ENV ?? 'development';
 console.log('NODE_ENV:', NODE_ENV);
 
 const candidateEnvPaths = [
-  path.resolve(process.cwd(), `dist/env/.env.${NODE_ENV}`), // production build
-  path.resolve(process.cwd(), `src/env/.env.${NODE_ENV}`),  // local dev
+  path.resolve(process.cwd(), `backend/dist/env/.env.${NODE_ENV}`), // production build
+  path.resolve(process.cwd(), `backend/src/env/.env.${NODE_ENV}`),  // local dev
 ];
-console.log('candidateEnvPaths567:', candidateEnvPaths);
+console.log('candidateEnvPaths:', candidateEnvPaths);
 
 const envFileExists = fs.existsSync(candidateEnvPaths[0]);
 console.log('envFileExists:', envFileExists);
