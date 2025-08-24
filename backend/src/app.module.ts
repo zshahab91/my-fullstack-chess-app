@@ -41,7 +41,8 @@ console.log('envFilePaths:', existingPaths);
     GameModule,
     // load the env file that matches NODE_ENV (default to development)
     ConfigModule.forRoot({
-      envFilePath: envFilePath,
+      // envFilePath: envFilePath,
+       envFilePath: ['.env.production'], 
       isGlobal: true,
       ignoreEnvFile: false, // This allows loading from file
     }),
