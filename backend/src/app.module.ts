@@ -16,7 +16,8 @@ import { UserMiddleware } from './user/user.middleware';
 import { User, UserSchema } from './user/schemas/user.schema';
 
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
-console.log('process.env:', process.env);
+
+
 const candidateEnvPaths = [
   path.resolve(process.cwd(), `backend/dist/env/.env.${NODE_ENV}`), // production build
   path.resolve(process.cwd(), `src/env/.env.${NODE_ENV}`),  // local dev
@@ -38,7 +39,8 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        
+        console.log('process.env in useFactory:', process.env);
+console.log('Available env vars:', Object.keys(process.env));
         // Build from components
         const protocol = config.get<string>('DB_PROTOCOL');
         let host = config.get<string>('DB_HOST');
