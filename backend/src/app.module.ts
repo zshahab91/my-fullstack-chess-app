@@ -23,6 +23,7 @@ const candidateEnvPath = path.resolve(
 );
 console.log('candidateEnvPath:', candidateEnvPath);
 const envFileExists = fs.existsSync(candidateEnvPath);
+console.log('envFileExists:', envFileExists);
 const envFilePath = envFileExists ? [candidateEnvPath] : undefined;
 console.log('envFilePath:', envFilePath);
 
