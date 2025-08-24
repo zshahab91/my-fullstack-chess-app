@@ -16,7 +16,7 @@ import { UserMiddleware } from './user/user.middleware';
 import { User, UserSchema } from './user/schemas/user.schema';
 
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
-console.log('NODE_ENV:', NODE_ENV);
+console.log('process.env:', process.env);
 const distPath = path.join(__dirname, '..'); // __dirname is 'dist' at runtime
 
 if (fs.existsSync(distPath)) {
@@ -41,13 +41,12 @@ console.log('candidateEnvPaths567:', candidateEnvPaths);
 const envFileExists = fs.existsSync(candidateEnvPaths[0]);
 console.log('envFileExists:', envFileExists);
 
-const envFilePath = envFileExists ? [candidateEnvPaths[0]] : undefined;
-console.log('envFilePath:', envFilePath);
+// const envFilePath = envFileExists ? [candidateEnvPaths[0]] : undefined;
+// console.log('envFilePath:', envFilePath);
 
 
 
 const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
-console.log('envFilePaths:', existingPaths);
 
 @Module({
   imports: [
@@ -55,9 +54,9 @@ console.log('envFilePaths:', existingPaths);
     GameModule,
     // load the env file that matches NODE_ENV (default to development)
     ConfigModule.forRoot({
-      envFilePath: envFilePath,
+      envFilePath: existingPaths,
       isGlobal: true,
-      ignoreEnvFile: false, // This allows loading from file
+      ignoreEnvFile: !existingPaths
     }),
     // read MONGO_URI from the current env
     MongooseModule.forRootAsync({
@@ -76,7 +75,7 @@ console.log('envFilePaths:', existingPaths);
         
         const user = config.get<string>('DB_USER');
         const pass = config.get<string>('DB_PASS');
-        console.log('DB Config Hostafter:', config.get<string>('DB_HOST'));
+        console.log('DB Config Host:', config.get<string>('DB_HOST'));
         console.log('DB Config pass:', config.get<string>('DB_PASS'));
 
         const credentials =
@@ -86,7 +85,6 @@ console.log('envFilePaths:', existingPaths);
         console.log('DB Credentials:', credentials);
         // mongodb+srv must not include port and uses host only
         const isSrv = protocol?.includes('+srv') ?? false;
-        console.log('isSrv:', isSrv);
         const dbUrl = isSrv
           ? `${protocol}://${credentials}${host}/${name}?retryWrites=true&w=majority`
           : `${protocol}://${credentials}${host}:${port}/${name}?retryWrites=true&w=majority`;
