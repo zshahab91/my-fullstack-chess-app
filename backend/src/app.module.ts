@@ -29,7 +29,7 @@ if (fs.existsSync(distPath)) {
 const envPath = path.join(__dirname, 'env');
 if (fs.existsSync(envPath)) {
   const files = fs.readdirSync(envPath);
-  console.log('Files in dist/env:', files);
+  console.log(`envPath:${envPath}:`, files);
 }
 
 const candidateEnvPaths = [
