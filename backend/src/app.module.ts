@@ -41,9 +41,7 @@ console.log('envFilePaths:', existingPaths);
     GameModule,
     // load the env file that matches NODE_ENV (default to development)
     ConfigModule.forRoot({
-      envFilePath: process.env.NODE_ENV === 'production'
-        ? 'dist/env/.env.production'
-        : 'src/env/.env.development',
+      envFilePath: envFilePath,
       isGlobal: true,
       ignoreEnvFile: false, // This allows loading from file
     }),
@@ -56,13 +54,13 @@ console.log('envFilePaths:', existingPaths);
         console.log('DB Config pass:', config.get<string>('DB_PASS'));
 
         // Build from components
-        const protocol = config.get<string>('DB_PROTOCOL') ?? 'mongodb';
-        let host = config.get<string>('DB_HOST') ?? 'localhost';
-        const port = config.get<string>('DB_PORT') ?? '27017';
-        const name = config.get<string>('DB_NAME') ?? 'chess-app';
+        const protocol = config.get<string>('DB_PROTOCOL');
+        let host = config.get<string>('DB_HOST');
+        const port = config.get<string>('DB_PORT');
+        const name = config.get<string>('DB_NAME');
 
         // remove any accidental leading @ from host
-        host = host.replace(/^@+/, '');
+        host = (host ?? '').replace(/^@+/, '');
 
         const user = config.get<string>('DB_USER');
         const pass = config.get<string>('DB_PASS');
@@ -73,7 +71,7 @@ console.log('envFilePaths:', existingPaths);
             : '';
         console.log('DB Credentials:', credentials);
         // mongodb+srv must not include port and uses host only
-        const isSrv = protocol.includes('+srv');
+        const isSrv = protocol?.includes('+srv') ?? false;
         console.log('isSrv:', isSrv);
         const dbUrl = isSrv
           ? `${protocol}://${credentials}${host}/${name}?retryWrites=true&w=majority`
