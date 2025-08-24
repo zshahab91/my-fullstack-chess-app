@@ -41,15 +41,18 @@ console.log('envFilePaths:', existingPaths);
     GameModule,
     // load the env file that matches NODE_ENV (default to development)
     ConfigModule.forRoot({
+      envFilePath: process.env.NODE_ENV === 'production'
+        ? 'dist/env/.env.production'
+        : 'src/env/.env.development',
       isGlobal: true,
-      envFilePath: existingPaths,
+      ignoreEnvFile: false, // This allows loading from file
     }),
     // read MONGO_URI from the current env
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        console.log('DB Config Host78:', config.get<string>('DB_HOST'));
+        console.log('DB Config Host:', config.get<string>('DB_HOST'));
         console.log('DB Config pass:', config.get<string>('DB_PASS'));
 
         // Build from components
