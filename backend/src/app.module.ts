@@ -17,12 +17,26 @@ import { User, UserSchema } from './user/schemas/user.schema';
 
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
 console.log('NODE_ENV:', NODE_ENV);
+const distPath = path.join(__dirname, '..'); // __dirname is 'dist' at runtime
+
+if (fs.existsSync(distPath)) {
+  const files = fs.readdirSync(distPath);
+  console.log('Files in dist:', files);
+} else {
+  console.log('dist folder does not exist');
+}
+
+const envPath = path.join(__dirname, 'env');
+if (fs.existsSync(envPath)) {
+  const files = fs.readdirSync(envPath);
+  console.log('Files in dist/env:', files);
+}
 
 const candidateEnvPaths = [
-  path.resolve(process.cwd(), `backend/dist/env/.env.${NODE_ENV}`), // production build
-  path.resolve(process.cwd(), `backend/src/env/.env.${NODE_ENV}`),  // local dev
+  path.resolve(process.cwd(), `dist/env/.env.${NODE_ENV}`), // production build
+  path.resolve(process.cwd(), `src/env/.env.${NODE_ENV}`),  // local dev
 ];
-console.log('candidateEnvPaths:', candidateEnvPaths);
+console.log('candidateEnvPaths567:', candidateEnvPaths);
 
 const envFileExists = fs.existsSync(candidateEnvPaths[0]);
 console.log('envFileExists:', envFileExists);
@@ -97,3 +111,5 @@ export class AppModule implements NestModule {
       .forRoutes({ path: 'game/*', method: RequestMethod.ALL });
   }
 }
+
+
