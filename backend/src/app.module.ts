@@ -43,7 +43,7 @@ console.log('envFilePath:', envFilePath);
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        console.log('DB Config Hossst:', config.get<string>('DB_HOST'));
+        console.log('DB Config Host:', config.get<string>('DB_HOST'));
         console.log('DB Config pass:', config.get<string>('DB_PASS'));
 
         // Build from components
