@@ -17,12 +17,23 @@ import { User, UserSchema } from './user/schemas/user.schema';
 
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
 console.log('NODE_ENV:', NODE_ENV);
-const candidateEnvPath = path.resolve(process.cwd(), `env/.env.${NODE_ENV}`);
-console.log('candidateEnvPath:', candidateEnvPath);
-const envFileExists = fs.existsSync(candidateEnvPath);
+
+const candidateEnvPaths = [
+  path.resolve(process.cwd(), `dist/env/.env.${NODE_ENV}`), // production build
+  path.resolve(process.cwd(), `src/env/.env.${NODE_ENV}`),  // local dev
+];
+console.log('candidateEnvPaths:', candidateEnvPaths);
+
+const envFileExists = fs.existsSync(candidateEnvPaths[0]);
 console.log('envFileExists:', envFileExists);
-const envFilePath = envFileExists ? [candidateEnvPath] : undefined;
+
+const envFilePath = envFileExists ? [candidateEnvPaths[0]] : undefined;
 console.log('envFilePath:', envFilePath);
+
+
+
+const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
+console.log('envFilePaths:', existingPaths);
 
 @Module({
   imports: [
@@ -31,15 +42,14 @@ console.log('envFilePath:', envFilePath);
     // load the env file that matches NODE_ENV (default to development)
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [`dist/env/.env.${process.env.NODE_ENV}`], // if no env file found, ignoreEnvFile true so ConfigModule only uses process.env
-      // ignoreEnvFile: !envFileExists,
+      envFilePath: existingPaths,
     }),
     // read MONGO_URI from the current env
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        console.log('DB Config Host:', config.get<string>('DB_HOST'));
+        console.log('DB Config Host78:', config.get<string>('DB_HOST'));
         console.log('DB Config pass:', config.get<string>('DB_PASS'));
 
         // Build from components
