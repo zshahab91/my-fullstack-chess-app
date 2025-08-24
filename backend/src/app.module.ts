@@ -55,8 +55,7 @@ console.log('envFilePaths:', existingPaths);
     GameModule,
     // load the env file that matches NODE_ENV (default to development)
     ConfigModule.forRoot({
-      // envFilePath: envFilePath,
-       envFilePath: ['.env.production'], 
+      envFilePath: envFilePath,
       isGlobal: true,
       ignoreEnvFile: false, // This allows loading from file
     }),
@@ -65,20 +64,20 @@ console.log('envFilePaths:', existingPaths);
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        console.log('DB Config Host:', config.get<string>('DB_HOST'));
-        console.log('DB Config pass:', config.get<string>('DB_PASS'));
-
+        
         // Build from components
         const protocol = config.get<string>('DB_PROTOCOL');
         let host = config.get<string>('DB_HOST');
         const port = config.get<string>('DB_PORT');
         const name = config.get<string>('DB_NAME');
-
+        
         // remove any accidental leading @ from host
         host = (host ?? '').replace(/^@+/, '');
-
+        
         const user = config.get<string>('DB_USER');
         const pass = config.get<string>('DB_PASS');
+        console.log('DB Config Hostafter:', config.get<string>('DB_HOST'));
+        console.log('DB Config pass:', config.get<string>('DB_PASS'));
 
         const credentials =
           user && pass
