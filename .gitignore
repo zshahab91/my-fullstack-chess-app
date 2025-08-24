@@ -4,8 +4,6 @@ dist/
 .env
 /backend/node_modules/
 /backend/dist/
-/backend/env/.env.development
-/backend/env/.env.production
 
 
 
