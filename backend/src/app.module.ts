@@ -34,9 +34,9 @@ console.log('envFilePath:', envFilePath);
     // load the env file that matches NODE_ENV (default to development)
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath,
+      envFilePath: [`env/.${process.env.NODE_ENV}.env`],
       // if no env file found, ignoreEnvFile true so ConfigModule only uses process.env
-      ignoreEnvFile: !envFileExists,
+      // ignoreEnvFile: !envFileExists,
     }),
     // read MONGO_URI from the current env
     MongooseModule.forRootAsync({
