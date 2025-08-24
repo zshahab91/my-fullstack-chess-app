@@ -17,35 +17,10 @@ import { User, UserSchema } from './user/schemas/user.schema';
 
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
 console.log('process.env:', process.env);
-const distPath = path.join(__dirname, '..'); // __dirname is 'dist' at runtime
-
-if (fs.existsSync(distPath)) {
-  const files = fs.readdirSync(distPath);
-  console.log('Files in dist:', files);
-} else {
-  console.log('dist folder does not exist');
-}
-
-const envPath = path.join(__dirname, 'env');
-if (fs.existsSync(envPath)) {
-  const files = fs.readdirSync(envPath);
-  console.log(`envPath:${envPath}:`, files);
-}
-
 const candidateEnvPaths = [
   path.resolve(process.cwd(), `backend/dist/env/.env.${NODE_ENV}`), // production build
   path.resolve(process.cwd(), `src/env/.env.${NODE_ENV}`),  // local dev
 ];
-console.log('candidateEnvPaths567:', candidateEnvPaths);
-
-const envFileExists = fs.existsSync(candidateEnvPaths[0]);
-console.log('envFileExists:', envFileExists);
-
-// const envFilePath = envFileExists ? [candidateEnvPaths[0]] : undefined;
-// console.log('envFilePath:', envFilePath);
-
-
-
 const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
 
 @Module({
@@ -75,14 +50,15 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
         
         const user = config.get<string>('DB_USER');
         const pass = config.get<string>('DB_PASS');
-        console.log('DB Config Host:', config.get<string>('DB_HOST'));
+        // console.log('DB Config Host:', config.get<string>('DB_HOST'));
         console.log('DB Config pass:', config.get<string>('DB_PASS'));
+        console.log('DB Config User:', config.get<string>('DB_USER'));
 
         const credentials =
           user && pass
             ? `${encodeURIComponent(user)}:${encodeURIComponent(pass)}@`
             : '';
-        console.log('DB Credentials:', credentials);
+        // console.log('DB Credentials:', credentials);
         // mongodb+srv must not include port and uses host only
         const isSrv = protocol?.includes('+srv') ?? false;
         const dbUrl = isSrv
