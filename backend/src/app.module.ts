@@ -21,8 +21,10 @@ const candidateEnvPath = path.resolve(
   process.cwd(),
   `src/env/.env.${NODE_ENV}`,
 );
+console.log('candidateEnvPath:', candidateEnvPath);
 const envFileExists = fs.existsSync(candidateEnvPath);
 const envFilePath = envFileExists ? [candidateEnvPath] : undefined;
+console.log('envFilePath:', envFilePath);
 
 @Module({
   imports: [
@@ -40,6 +42,9 @@ const envFilePath = envFileExists ? [candidateEnvPath] : undefined;
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
+        console.log('DB Config Hossst:', config.get<string>('DB_HOST'));
+        console.log('DB Config pass:', config.get<string>('DB_PASS'));
+
         // Build from components
         const protocol = config.get<string>('DB_PROTOCOL') ?? 'mongodb';
         let host = config.get<string>('DB_HOST') ?? 'localhost';
@@ -59,7 +64,7 @@ const envFilePath = envFileExists ? [candidateEnvPath] : undefined;
 console.log('DB Credentials:', credentials);
         // mongodb+srv must not include port and uses host only
         const isSrv = protocol.includes('+srv');
-
+console.log('isSrv:', isSrv);
         const dbUrl = isSrv
           ? `${protocol}://${credentials}${host}/${name}?retryWrites=true&w=majority`
           : `${protocol}://${credentials}${host}:${port}/${name}?retryWrites=true&w=majority`;

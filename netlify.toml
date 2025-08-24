@@ -1,0 +1,11 @@
+[build]
+  command = "node -v && npm install && npm run build"
+  base = "frontend"
+  publish = "frontend/.next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# (Optional) Use Next.js plugin
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
