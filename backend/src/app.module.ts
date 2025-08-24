@@ -17,10 +17,7 @@ import { User, UserSchema } from './user/schemas/user.schema';
 
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
 console.log('NODE_ENV:', NODE_ENV);
-const candidateEnvPath = path.resolve(
-  process.cwd(),
-  `env/.env.${NODE_ENV}`,
-);
+const candidateEnvPath = path.resolve(process.cwd(), `env/.env.${NODE_ENV}`);
 console.log('candidateEnvPath:', candidateEnvPath);
 const envFileExists = fs.existsSync(candidateEnvPath);
 console.log('envFileExists:', envFileExists);
@@ -34,8 +31,7 @@ console.log('envFilePath:', envFilePath);
     // load the env file that matches NODE_ENV (default to development)
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [`env/.${process.env.NODE_ENV}.env`],
-      // if no env file found, ignoreEnvFile true so ConfigModule only uses process.env
+      envFilePath: [`dist/env/.env.${process.env.NODE_ENV}`], // if no env file found, ignoreEnvFile true so ConfigModule only uses process.env
       // ignoreEnvFile: !envFileExists,
     }),
     // read MONGO_URI from the current env
@@ -62,14 +58,14 @@ console.log('envFilePath:', envFilePath);
           user && pass
             ? `${encodeURIComponent(user)}:${encodeURIComponent(pass)}@`
             : '';
-console.log('DB Credentials:', credentials);
+        console.log('DB Credentials:', credentials);
         // mongodb+srv must not include port and uses host only
         const isSrv = protocol.includes('+srv');
-console.log('isSrv:', isSrv);
+        console.log('isSrv:', isSrv);
         const dbUrl = isSrv
           ? `${protocol}://${credentials}${host}/${name}?retryWrites=true&w=majority`
           : `${protocol}://${credentials}${host}:${port}/${name}?retryWrites=true&w=majority`;
-console.log('dbUrl:', dbUrl);
+        console.log('dbUrl:', dbUrl);
 
         return { uri: dbUrl };
       },
