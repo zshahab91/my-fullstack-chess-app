@@ -19,7 +19,7 @@ const NODE_ENV = process.env.NODE_ENV ?? 'development';
 console.log('NODE_ENV:', NODE_ENV);
 const candidateEnvPath = path.resolve(
   process.cwd(),
-  `src/env/.env.${NODE_ENV}`,
+  `env/.env.${NODE_ENV}`,
 );
 console.log('candidateEnvPath:', candidateEnvPath);
 const envFileExists = fs.existsSync(candidateEnvPath);
