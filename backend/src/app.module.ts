@@ -41,7 +41,7 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
       useFactory: (config: ConfigService) => {
         console.log('process.env in useFactory:', process.env);
 console.log('Available env vars:', Object.keys(process.env));
-console.log('config5:', Object.keys(config));
+console.log('config new:', config);
         // Build from components
         const protocol = config.get<string>('DB_PROTOCOL');
         let host = config.get<string>('DB_HOST');
@@ -53,8 +53,10 @@ console.log('config5:', Object.keys(config));
         
         const user = config.get<string>('DB_USER') ?? process.env.DB_USER;
         const pass = config.get<string>('DB_PASS') ?? process.env.DB_PASS;
+        
         // console.log('DB Config Host:', config.get<string>('DB_HOST'));
         console.log('DB Config pass:', config.get<string>('DB_PASS'));
+        console.log('process.env.DB_USER:', process.env.DB_USER);
         console.log('DB Config User:', config.get<string>('DB_USER'));
 
         const credentials =
