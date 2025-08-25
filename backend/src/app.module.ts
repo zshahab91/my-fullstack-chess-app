@@ -22,6 +22,7 @@ const candidateEnvPaths = [
   path.resolve(process.cwd(), `src/env/.env.${NODE_ENV}`), // local dev
 ];
 const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
+console.log('Existing env paths:', existingPaths);
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
       envFilePath: existingPaths,
       isGlobal: true,
       ignoreEnvFile: !existingPaths,
+      ignoreEnvVars: false,
     }),
     // read MONGO_URI from the current env
     MongooseModule.forRootAsync({
@@ -39,10 +41,10 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         // Build from components
-        const protocol = config.get<string>('DB_PROTOCOL') ?? 'mongodb+srv';
-        let host = config.get<string>('DB_HOST') ?? '';
-        const port = config.get<string>('DB_PORT') ?? '';
-        const name = config.get<string>('DB_NAME') ?? '';
+        const protocol = config.get<string>('DB_PROTOCOL');
+        let host = config.get<string>('DB_HOST');
+        const port = config.get<string>('DB_PORT');
+        const name = config.get<string>('DB_NAME');
 
         // remove any accidental leading @ from host
         host = (host ?? '').replace(/^@+/, '');
