@@ -32,7 +32,8 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
     ConfigModule.forRoot({
       envFilePath: existingPaths,
       isGlobal: true,
-      ignoreEnvFile: !existingPaths
+      ignoreEnvFile: !existingPaths,
+      ignoreEnvVars: false, // ✅ always include Railway’s injected vars
     }),
     // read MONGO_URI from the current env
     MongooseModule.forRootAsync({
@@ -55,9 +56,8 @@ console.log('config new:', config);
         const pass = config.get<string>('DB_PASS') ?? process.env.DB_PASS;
         
         // console.log('DB Config Host:', config.get<string>('DB_HOST'));
-        console.log('DB Config pass:', config.get<string>('DB_PASS'));
-        console.log('process.env.DB_USER:', process.env.DB_USER);
-        console.log('DB Config User:', config.get<string>('DB_USER'));
+       console.log('Railway ENV DB_USER:', process.env.DB_USER);
+console.log('Railway ENV DB_PASS:', process.env.DB_PASS ? '***' : 'undefined');
 
         const credentials =
           user && pass
