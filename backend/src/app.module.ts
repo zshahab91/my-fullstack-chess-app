@@ -17,10 +17,9 @@ import { User, UserSchema } from './user/schemas/user.schema';
 
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
 
-
 const candidateEnvPaths = [
   path.resolve(process.cwd(), `backend/dist/env/.env.${NODE_ENV}`), // production build
-  path.resolve(process.cwd(), `src/env/.env.${NODE_ENV}`),  // local dev
+  path.resolve(process.cwd(), `src/env/.env.${NODE_ENV}`), // local dev
 ];
 const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
 
@@ -40,28 +39,21 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        console.log('process.env in useFactory:', process.env);
-console.log('Available env vars:', Object.keys(process.env));
-console.log('config new:', config);
         // Build from components
         const protocol = config.get<string>('DB_PROTOCOL');
         let host = config.get<string>('DB_HOST');
         const port = config.get<string>('DB_PORT');
         const name = config.get<string>('DB_NAME');
-        
+
         // remove any accidental leading @ from host
         host = (host ?? '').replace(/^@+/, '');
-        
+
         const user = config.get<string>('DB_USER') ?? process.env.DB_USER;
         const pass = config.get<string>('DB_PASS') ?? process.env.DB_PASS;
-        
-        // console.log('DB Config Host:', config.get<string>('DB_HOST'));
-       console.log('Railway ENV NODE_ENV:', process.env.NODE_ENV);
-       console.log('Railway ENV DB_USER:', process.env.DB_USER);
+        console.log('Railway ENV DB_USER:', process.env.DB_USER);
 
-       console.log('Railway ENV Test:', process.env.Test);
-
-console.log('Railway ENV DB_PASS:', process.env.DB_PASS ? '***' : 'undefined');
+        console.log('Railway ENV DB_TEST:', process.env.DB_TEST);
+        console.log('protocol:', protocol, host, port, name);
 
         const credentials =
           user && pass
@@ -93,5 +85,3 @@ export class AppModule implements NestModule {
       .forRoutes({ path: 'game/*', method: RequestMethod.ALL });
   }
 }
-
-
