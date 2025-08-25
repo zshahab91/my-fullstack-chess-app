@@ -21,6 +21,7 @@ const candidateEnvPaths = [
   path.resolve(process.cwd(), `backend/dist/env/.env.${NODE_ENV}`), // production build
   path.resolve(process.cwd(), `src/env/.env.${NODE_ENV}`), // local dev
 ];
+console.log('Candidate env paths:', candidateEnvPaths);
 const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
 console.log('Existing env paths:', existingPaths);
 
@@ -59,7 +60,6 @@ console.log('Existing env paths:', existingPaths);
           user && pass
             ? `${encodeURIComponent(user)}:${encodeURIComponent(pass)}@`
             : '';
-        // console.log('DB Credentials:', credentials);
         // mongodb+srv must not include port and uses host only
         const isSrv = protocol?.includes('+srv') ?? false;
         const dbUrl = isSrv
