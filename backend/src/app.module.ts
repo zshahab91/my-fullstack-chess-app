@@ -41,7 +41,7 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
       useFactory: (config: ConfigService) => {
         console.log('process.env in useFactory:', process.env);
 console.log('Available env vars:', Object.keys(process.env));
-console.log('config:', Object.keys(config));
+console.log('config5:', Object.keys(config));
         // Build from components
         const protocol = config.get<string>('DB_PROTOCOL');
         let host = config.get<string>('DB_HOST');
