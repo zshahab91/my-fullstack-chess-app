@@ -56,7 +56,11 @@ console.log('config new:', config);
         const pass = config.get<string>('DB_PASS') ?? process.env.DB_PASS;
         
         // console.log('DB Config Host:', config.get<string>('DB_HOST'));
+       console.log('Railway ENV NODE_ENV:', process.env.NODE_ENV);
        console.log('Railway ENV DB_USER:', process.env.DB_USER);
+
+       console.log('Railway ENV Test:', process.env.Test);
+
 console.log('Railway ENV DB_PASS:', process.env.DB_PASS ? '***' : 'undefined');
 
         const credentials =
