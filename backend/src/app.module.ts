@@ -32,7 +32,6 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
       envFilePath: existingPaths,
       isGlobal: true,
       ignoreEnvFile: !existingPaths,
-      ignoreEnvVars: false, // ✅ always include Railway’s injected vars
     }),
     // read MONGO_URI from the current env
     MongooseModule.forRootAsync({
@@ -40,10 +39,10 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         // Build from components
-        const protocol = config.get<string>('DB_PROTOCOL');
-        let host = config.get<string>('DB_HOST');
-        const port = config.get<string>('DB_PORT');
-        const name = config.get<string>('DB_NAME');
+        const protocol = config.get<string>('DB_PROTOCOL') ?? 'mongodb+srv';
+        let host = config.get<string>('DB_HOST') ?? '';
+        const port = config.get<string>('DB_PORT') ?? '';
+        const name = config.get<string>('DB_NAME') ?? '';
 
         // remove any accidental leading @ from host
         host = (host ?? '').replace(/^@+/, '');
@@ -52,7 +51,6 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
         const pass = config.get<string>('DB_PASS') ?? process.env.DB_PASS;
         console.log('Railway ENV DB_USER:', process.env.DB_USER);
 
-        console.log('Railway ENV DB_TEST:', process.env.DB_TEST);
         console.log('protocol:', protocol, host, port, name);
 
         const credentials =
@@ -64,7 +62,7 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
         const isSrv = protocol?.includes('+srv') ?? false;
         const dbUrl = isSrv
           ? `${protocol}://${credentials}${host}/${name}?retryWrites=true&w=majority`
-          : `${protocol}://${credentials}${host}:${port}/${name}?retryWrites=true&w=majority`;
+          : `${protocol}://${host}:${port}/${name}?retryWrites=true&w=majority`;
         console.log('dbUrl:', dbUrl);
 
         return { uri: dbUrl };
