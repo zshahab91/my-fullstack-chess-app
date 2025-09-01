@@ -65,7 +65,7 @@ console.log('Existing env paths:', existingPaths);
         const dbUrl = isSrv
           ? `${protocol}://${credentials}${host}/${name}?retryWrites=true&w=majority`
           : `${protocol}://${host}:${port}/${name}?retryWrites=true&w=majority`;
-        console.log('dbUrluu:', dbUrl);
+        console.log('dbUrl is:', dbUrl);
 
         return { uri: dbUrl };
       },
