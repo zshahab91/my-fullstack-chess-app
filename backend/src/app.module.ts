@@ -21,9 +21,7 @@ const candidateEnvPaths = [
   path.resolve(process.cwd(), `backend/dist/env/.env.${NODE_ENV}`), // production build
   path.resolve(process.cwd(), `src/env/.env.${NODE_ENV}`), // local dev
 ];
-console.log('Candidate env paths:', candidateEnvPaths);
 const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
-console.log('Existing env paths:', existingPaths);
 
 @Module({
   imports: [
@@ -52,10 +50,6 @@ console.log('Existing env paths:', existingPaths);
 
         const user = config.get<string>('DB_USER') ?? process.env.DB_USER;
         const pass = config.get<string>('DB_PASS') ?? process.env.DB_PASS;
-        console.log('Railway ENV DB_USER:', process.env.DB_USER);
-
-        console.log('protocol:', protocol, host, port, name);
-
         const credentials =
           user && pass
             ? `${encodeURIComponent(user)}:${encodeURIComponent(pass)}@`
@@ -65,8 +59,6 @@ console.log('Existing env paths:', existingPaths);
         const dbUrl = isSrv
           ? `${protocol}://${credentials}${host}/${name}?retryWrites=true&w=majority`
           : `${protocol}://${host}:${port}/${name}?retryWrites=true&w=majority`;
-        console.log('dbUrl is:', dbUrl);
-
         return { uri: dbUrl };
       },
     }),
