@@ -5,7 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 3000;
-  console.log('process.env:', process.env); // --- IGNORE ---
+  console.log('process.env RAILWAY_PUBLIC_DOMAIN	:', process.env.RAILWAY_PUBLIC_DOMAIN	); // --- IGNORE ---
   app.enableCors({
     origin: "*", // or "*" for all origins (not recommended for production)
     credentials: true,
