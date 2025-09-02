@@ -8,7 +8,6 @@ const envPath = path.resolve(process.cwd(), `env/.env.${NODE_ENV}`);
 
 if (fs.existsSync(envPath)) {
   dotenv.config({ path: envPath });
-  console.log(`Loaded env from ${envPath}`);
 } else {
   console.log(`Env file not found: ${envPath}, falling back to process.env`);
 }

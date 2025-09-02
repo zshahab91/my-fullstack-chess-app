@@ -5,15 +5,12 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 3000;
-  console.log('process.env RAILWAY_PUBLIC_DOMAIN	:', process.env.RAILWAY_PUBLIC_DOMAIN	); // --- IGNORE ---
   app.enableCors({
     origin: "*", // or "*" for all origins (not recommended for production)
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
   app.setGlobalPrefix('api'); // Optional: set a global prefix for your API routes
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
+  app.listen(port);
 }
 bootstrap();

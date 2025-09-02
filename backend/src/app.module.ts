@@ -68,9 +68,6 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
   providers: [AppService],
 })
 export class AppModule implements NestModule {
-  constructor() {
-    console.log('AppModule initialized', process.env.NODE_ENV);
-  }
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(UserMiddleware)

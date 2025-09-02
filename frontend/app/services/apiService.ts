@@ -1,15 +1,21 @@
 import axios from "axios";
-import { isAxiosErrorWithBackendError, setAuthToken as setInterceptorAuthToken } from "./apiInterceptor";
-import type { GameResponse, Move, StartGameResponse } from "../interfaces/chessType";
+import {
+  isAxiosErrorWithBackendError,
+  setAuthToken as setInterceptorAuthToken,
+} from "./apiInterceptor";
+import type {
+  GameResponse,
+  Move,
+  StartGameResponse,
+} from "../interfaces/chessType";
 import { cleanErrorMessage } from "../utils/global";
 
 // Use the NEXT_PUBLIC_API_URL injected at build time by next.config.ts
 export const API_BASE_URL: string =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3200/api";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api";
 const setAuthToken = (token: string) => {
   setInterceptorAuthToken(token);
 };
-
 
 export const apiService = {
   getAllBoards: async () => {
