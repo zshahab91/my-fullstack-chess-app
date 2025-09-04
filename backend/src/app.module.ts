@@ -14,6 +14,7 @@ import { UserModule } from './user/user.module';
 import { GameModule } from './game/game.module';
 import { UserMiddleware } from './user/user.middleware';
 import { User, UserSchema } from './user/schemas/user.schema';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
 
@@ -25,6 +26,10 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: path.join(__dirname, '..', '..', 'frontend', 'dist'),
+      exclude: ['/api*'], // Excludes all API routes
+    }),
     UserModule,
     GameModule,
     // load the env file that matches NODE_ENV (default to development)
