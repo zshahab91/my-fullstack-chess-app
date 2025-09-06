@@ -11,6 +11,6 @@ async function bootstrap() {
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
   app.setGlobalPrefix('api'); // Optional: set a global prefix for your API routes
-  app.listen(port);
+  await app.listen(port);
 }
 bootstrap();

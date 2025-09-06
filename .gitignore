@@ -13,4 +13,3 @@ dist/
 /frontend/.next/
 /frontend/.env
 /frontend/env/.env.development
-/frontend/env/.env.production
