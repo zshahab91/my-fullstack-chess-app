@@ -24,8 +24,10 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance();
 
   expressApp.use(express.static(path.join(__dirname, 'public')));
-  expressApp.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/index.html'));
+
+  // Catch-all for non-API routes
+  expressApp.get(/^(?!\/api).*/, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
   });
 
   await app.listen(port);
