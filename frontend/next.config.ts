@@ -14,7 +14,7 @@ if (fs.existsSync(envPath)) {
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
-  env: {
+   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
   // 👇 this replaces `next export`
