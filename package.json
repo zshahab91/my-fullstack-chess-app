@@ -6,9 +6,10 @@
     "backend"
   ],
   "scripts": {
-    "build": "npm run build:frontend && npm run build:backend",
+    "build": "npm run build:frontend && npm run build:backend && npm run copy:frontend",
     "build:frontend": "npm --workspace frontend run build",
     "build:backend": "npm --workspace backend run build",
+    "copy:frontend": "cp -r frontend/dist backend/dist/public",
     "start": "node backend/dist/main.js"
   },
   "engines": {

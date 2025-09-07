@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import * as express from 'express';
+import * as path from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,7 +12,12 @@ async function bootstrap() {
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
-  app.setGlobalPrefix('api'); // Optional: set a global prefix for your API routes
+  app.setGlobalPrefix('api');
+   // Serve frontend build
+  app.use(express.static(path.join(__dirname, 'public')));
+  app.use('*', (req: any, res: any) => {
+    res.sendFile(path.join(__dirname, 'public/index.html'));
+  }); // Optional: set a global prefix for your API routes
   await app.listen(port);
 }
 bootstrap();
