@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev -p 3500",
     "start:dev": "cross-env NODE_ENV=development next dev -p 3500",
-    "build": "next build",
     "start:prod": "cross-env NODE_ENV=production next build && cross-env NODE_ENV=production next start -p 3500",
+    "build": "next build && next export",
     "start": "next start -p 3500",
     "lint": "next lint"
   },
