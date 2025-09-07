@@ -9,10 +9,10 @@ import type {
   StartGameResponse,
 } from "../interfaces/chessType";
 import { cleanErrorMessage } from "../utils/global";
-
+console.log("process.env", process.env);
 // Use the NEXT_PUBLIC_API_URL injected at build time by next.config.ts
-export const API_BASE_URL: string =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api";
+export const API_BASE_URL: string = process.env.NEXT_PUBLIC_API_URL ?? "/api";
+console.log("API_BASE_URL:", API_BASE_URL);
 const setAuthToken = (token: string) => {
   setInterceptorAuthToken(token);
 };
