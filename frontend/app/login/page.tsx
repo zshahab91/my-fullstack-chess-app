@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import LoginForm from "../components/auth/LoginForm";
 import { apiService } from "../services/apiService";
 import { useRouter } from "next/navigation";
+import ThemeToggle from "../components/theme/ThemeToggle";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -33,7 +34,10 @@ export default function LoginPage() {
         }
     };
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="relative flex min-h-screen flex-col items-center justify-center px-4">
+            <div className="absolute right-4 top-4">
+                <ThemeToggle />
+            </div>
             <LoginForm onLogin={handleLoginSubmit} />
         </div>
     );

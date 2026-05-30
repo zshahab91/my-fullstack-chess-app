@@ -30,19 +30,22 @@ export default function LoginForm({ onLogin }: { onLogin?: (nickName: string) =>
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-gray-100 p-6 rounded shadow w-80">
-      <h2 className="text-xl font-bold text-center text-gray-700">Nick Name</h2>
+    <form
+      onSubmit={handleSubmit}
+      className="flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface)] p-6 shadow-xl backdrop-blur-sm"
+    >
+      <h2 className="text-center text-2xl font-bold tracking-tight text-[var(--text-primary)]">Nick Name</h2>
       <input
         type="text"
         placeholder="NickName"
-        className="p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 text-gray-700"
+        className="rounded-lg border border-[var(--border-soft)] bg-[var(--surface-strong)] p-2.5 text-[var(--text-primary)] outline-none transition focus:ring-2 focus:ring-[var(--accent)]"
         value={nickName}
         onChange={e => setNickName(e.target.value)}
         required
       />
       <button
         type="submit"
-        className="bg-gray-900 text-white font-bold py-2 rounded hover:bg-gray-700 transition"
+        className="rounded-lg bg-[var(--accent)] py-2.5 font-bold text-white transition hover:bg-[var(--accent-strong)] hover:cursor-pointer"
       >
         Enter
       </button>

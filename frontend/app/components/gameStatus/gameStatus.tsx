@@ -8,29 +8,29 @@ const GameStatus: React.FC = () => {
    const safeMessages: SSEMessage = sse?.message ?? initialSSEMessage;
    const excludeKeys = ["color", "board", "isNew"];
   return (
-    <div className="p-4 border rounded">
+    <div className="rounded-lg border border-[var(--border-soft)] bg-[var(--surface-strong)] p-4 text-[var(--text-primary)]">
       <div className="flex items-center justify-between">
-        {/* Status on the left */}
-        <span>Status: {connected ? '🟢 Connected' : '🔴 Disconnected'}</span>
-        {/* Player color with a colored circle on the right */}
+        <span className="font-medium text-[var(--text-primary)]">
+          Status: {connected ? 'Connected' : 'Disconnected'}
+        </span>
         {"color" in safeMessages && (
           <div className="flex items-center">
-            <span className="capitalize text-sm mr-2">Your color:</span>
+            <span className="mr-2 text-sm capitalize text-[var(--text-secondary)]">Your color:</span>
             <span
               className={`inline-block w-5 h-5 rounded-full  ${safeMessages.color === "white"
-                ? "bg-white border border-gray-800 border-solid"
-                : "bg-black border border-gray-100 border-solid"
+                ? "border-2 border-[var(--board-frame)] bg-white shadow-[inset_0_0_0_2px_rgba(255,255,255,0.95),0_0_0_1px_rgba(0,0,0,0.2)]"
+                : "border border-gray-100 bg-black"
                 }`}
             ></span>
           </div>
         )}
       </div>
 
-      <ul className="mt-4 list-disc pl-5 space-y-1">
+      <ul className="mt-4 space-y-1 text-[var(--text-secondary)]">
         {Object.entries(safeMessages).map(([key, msg], idx) =>
           !excludeKeys.includes(key) ? (
             <li key={idx} className="text-sm">
-              <strong>{key}:</strong> {msg ? msg.toString() : '-'}
+              <strong className="capitalize text-[var(--text-primary)]">{key}:</strong> {msg ? msg.toString() : '-'}
             </li>
           ) : null
         )}

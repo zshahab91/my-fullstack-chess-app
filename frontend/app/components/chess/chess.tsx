@@ -19,9 +19,9 @@ export default function Chess() {
     }
 
     return (
-        <>
+        <div className="grid w-full max-w-6xl grid-cols-1 gap-4 px-4 md:grid-cols-[260px_minmax(0,1fr)] md:items-start">
             <Sidebar />
             <Board />
-        </>
+        </div>
     );
 }

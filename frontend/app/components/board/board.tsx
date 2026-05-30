@@ -116,8 +116,24 @@ export default function Board() {
     e.preventDefault();
   };
 
+  const getPieceGlyphStyle = (pieceColor: "white" | "black") => {
+    if (pieceColor === "white") {
+      return {
+        color: "#f8f3e7",
+        WebkitTextStroke: "0.6px rgba(18, 24, 34, 0.45)",
+        textShadow: "none",
+      };
+    }
+
+    return {
+      color: "#000000",
+      WebkitTextStroke: "0.7px rgba(255, 255, 255, 0.7)",
+      textShadow: "none",
+    };
+  };
+
   return (
-    <div className="grid grid-cols-8 grid-rows-8 border-2 border-gray-700 w-160 h-160">
+    <div className="grid aspect-square w-[min(94vw,42rem)] grid-cols-8 grid-rows-8 overflow-hidden rounded-xl border-4 border-[var(--board-frame)] shadow-[0_22px_48px_rgba(0,0,0,0.28)]">
       {squaresToRender.map((square, idx) => {
         const piece = getPieceAt(square);
         const isDark = (Math.floor(idx / 8) + (idx % 8)) % 2 === 1;
@@ -128,18 +144,23 @@ export default function Board() {
             onClick={() => handleSquareClick(square)}
             onDrop={(e) => handleDrop(e, square)}
             onDragOver={handleDragOver}
-            className={`flex items-center justify-center w-20 h-20 text-8xl cursor-pointer hover:border-3 hover:border-green-500
-              ${isDark ? "bg-gray-900" : "bg-gray-500"}
-              ${isSelected ? "border-4 border-yellow-400" : ""}
-            `}
+            className="relative flex items-center justify-center border border-black/6 text-[clamp(1.4rem,5vw,3.25rem)] transition hover:cursor-pointer"
+            style={{
+              backgroundColor: isDark ? "var(--board-dark)" : "var(--board-light)",
+              boxShadow: isSelected ? "inset 0 0 0 4px var(--square-selected)" : "none",
+            }}
           >
             {piece ? (
               <span
                 draggable
                 onDragStart={(e) => handleDragStart(e, square)}
-                style={{ cursor: "grab" }}
+                className="inline-flex items-center justify-center"
+                style={{
+                  cursor: "grab",
+                  ...getPieceGlyphStyle(piece.color as "white" | "black"),
+                }}
               >
-                {getPieceSymbol(piece.piece, piece.color)}
+                  {getPieceSymbol(piece.piece, piece.color)}
               </span>
             ) : (
               ""

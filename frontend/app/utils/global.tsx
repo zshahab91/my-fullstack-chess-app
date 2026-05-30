@@ -1,17 +1,18 @@
 export const getPieceSymbol = (piece: string, color: string) => {
+  const isWhite = color === "w" || color === "white";
     const symbols: Record<string, string> = {
-        k: color !== "w" ? "♔" : "♚",
-        q: color !== "w" ? "♕" : "♛",
-        r: color !== "w" ? "♖" : "♜",
-        b: color !== "w" ? "♗" : "♝",
-        n: color !== "w" ? "♘" : "♞",
-        p: color !== "w" ? "♙" : "♟",
+    k: isWhite ? "♔" : "♚",
+    q: isWhite ? "♕" : "♛",
+    r: isWhite ? "♖" : "♜",
+    b: isWhite ? "♗" : "♝",
+    n: isWhite ? "♘" : "♞",
+    p: isWhite ? "♙" : "♟",
     };
 
-    const symbol = symbols[piece];
+  const symbol = symbols[piece?.toLowerCase()];
     if (!symbol) return null;
 
-    return <span className="chess-piece">{symbol}</span>;
+  return symbol;
 };
 
 export const capitalizeFirstChar = (str: string)  =>{

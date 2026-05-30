@@ -1,8 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f1e6;
+  --foreground: #1d232d;
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-strong: rgba(255, 255, 255, 0.9);
+  --surface-hover: rgba(255, 255, 255, 1);
+  --border-soft: #c7bca7;
+  --accent: #17624f;
+  --accent-strong: #0f4f3f;
+  --danger: #b23a33;
+  --danger-strong: #8f2d27;
+  --board-frame: #2c3643;
+  --board-light: #f0ddbc;
+  --board-dark: #9d6849;
+  --square-selected: #f2bb4a;
+  --piece-white: #f7f4ea;
+  --piece-black: #1b1f26;
+  --text-primary: #1d232d;
+  --text-secondary: #445061;
 }
 
 @theme inline {
@@ -12,15 +28,40 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+[data-theme="dark"] {
+  --background: #121822;
+  --foreground: #eef0f4;
+  --surface: rgba(16, 24, 38, 0.72);
+  --surface-strong: rgba(22, 33, 52, 0.9);
+  --surface-hover: rgba(32, 44, 65, 1);
+  --border-soft: #3e4f69;
+  --accent: #3aa17e;
+  --accent-strong: #2a7f63;
+  --danger: #d2685d;
+  --danger-strong: #be574e;
+  --board-frame: #5e7091;
+  --board-light: #d5b07a;
+  --board-dark: #5d3b2a;
+  --square-selected: #ffd36e;
+  --piece-white: #f8f4e8;
+  --piece-black: #11161f;
+  --text-primary: #eef0f4;
+  --text-secondary: #bfccdf;
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at 18% 12%, rgba(221, 168, 79, 0.22), transparent 38%),
+    radial-gradient(circle at 84% 88%, rgba(52, 131, 183, 0.2), transparent 36%),
+    linear-gradient(150deg, var(--background), color-mix(in oklab, var(--background), black 8%));
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), "Avenir Next", "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at 16% 10%, rgba(62, 126, 170, 0.24), transparent 38%),
+    radial-gradient(circle at 82% 88%, rgba(88, 170, 127, 0.22), transparent 38%),
+    linear-gradient(160deg, var(--background), color-mix(in oklab, var(--background), black 16%));
 }

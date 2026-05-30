@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ThemeToggle from "../theme/ThemeToggle";
 
 export default function Header() {
   const [nickName, setNickName] = useState<string | null>(null);
@@ -17,16 +18,19 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full py-4 text-center bg-gray-900 text-white font-bold text-2xl shadow flex justify-between items-center px-8">
-      <span>
+    <header className="flex w-full items-center justify-between gap-3 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface)] px-4 py-3 shadow-md backdrop-blur-sm sm:px-6">
+      <span className="text-lg font-bold tracking-tight text-[var(--text-primary)] sm:text-2xl">
         Chess Game {nickName ? `- ${nickName}` : ""}
       </span>
-      <button
-        onClick={handleLogout}
-        className="bg-red-600 hover:bg-red-700 hover:cursor-pointer text-white font-semibold py-2 px-4 rounded"
-      >
-        Logout
-      </button>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <button
+          onClick={handleLogout}
+          className="rounded-lg bg-[var(--danger)] px-3 py-1.5 text-sm font-semibold text-white transition hover:cursor-pointer hover:bg-[var(--danger-strong)] sm:px-4 sm:py-2"
+        >
+          Logout
+        </button>
+      </div>
     </header>
   );
 }
