@@ -5,6 +5,42 @@ import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+if (typeof window === "undefined") {
+  const globalWithStorage = globalThis as typeof globalThis & {
+    localStorage?: Storage;
+  };
+
+  const storage = globalWithStorage.localStorage;
+  const isBrokenStorage =
+    !storage ||
+    typeof storage.getItem !== "function" ||
+    typeof storage.setItem !== "function" ||
+    typeof storage.removeItem !== "function" ||
+    typeof storage.clear !== "function";
+
+  if (isBrokenStorage) {
+    const store = new Map<string, string>();
+    const storageShim: Storage = {
+      get length() {
+        return store.size;
+      },
+      getItem: (key: string) => store.get(key) ?? null,
+      key: (index: number) => Array.from(store.keys())[index] ?? null,
+      setItem: (key: string, value: string) => {
+        store.set(key, value);
+      },
+      removeItem: (key: string) => {
+        store.delete(key);
+      },
+      clear: () => {
+        store.clear();
+      },
+    };
+
+    (globalThis as { localStorage?: Storage }).localStorage = storageShim;
+  }
+}
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
