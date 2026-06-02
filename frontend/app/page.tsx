@@ -1,13 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "./components/header/Header";
 import { apiService } from "./services/apiService";
 import Chess from "./components/chess/chess";
 import { SSEProvider } from "./context/SSEContext";
+import LoadingTemplate from "./components/loading/LoadingTemplate";
 
-
-export default function Home() {
+function HomeContent() {
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -52,5 +52,13 @@ export default function Home() {
         </div>
       </SSEProvider>
     ) : null
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<LoadingTemplate message="Opening your game..." />}>
+      <HomeContent />
+    </Suspense>
   );
 }

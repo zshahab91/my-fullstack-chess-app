@@ -1,16 +1,17 @@
 "use client";
-import { useEffect } from "react";
+import { Suspense, useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
 import LoginForm from "../components/auth/LoginForm";
 import { apiService } from "../services/apiService";
 import { useRouter, useSearchParams } from "next/navigation";
 import ThemeToggle from "../components/theme/ThemeToggle";
+import LoadingTemplate from "../components/loading/LoadingTemplate";
 
-export default function LoginPage() {
+function LoginPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const handleLogin = (nickName: string, token: string) => {
+    const handleLogin = useCallback((nickName: string, token: string) => {
         if (token) {
             sessionStorage.setItem("chess_token", token);
             sessionStorage.setItem("chess_nickName", nickName);
@@ -20,7 +21,7 @@ export default function LoginPage() {
         } else {
             console.error("Login failed, no token received");
         }
-    };
+    }, [router]);
 
     useEffect(() => {
         const existingToken = sessionStorage.getItem("chess_token");
@@ -43,7 +44,7 @@ export default function LoginPage() {
         if (token && nickName) {
             handleLogin(nickName, token);
         }
-    }, [router, searchParams]);
+    }, [handleLogin, router, searchParams]);
 
     const handleLoginSubmit = async (nickName: string) => {
         try {
@@ -70,5 +71,13 @@ export default function LoginPage() {
             </div>
             <LoginForm onLogin={handleLoginSubmit} onOidcLogin={handleOidcLogin} />
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<LoadingTemplate message="Preparing sign in..." />}>
+            <LoginPageContent />
+        </Suspense>
     );
 }

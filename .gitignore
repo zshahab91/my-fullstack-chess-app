@@ -2,9 +2,10 @@
 dist/
 .next/
 .env
+.env.*
 /backend/node_modules/
 /backend/dist/
-backend/src/env/.env.development
+/backend/src/env/.env.development
 
 
 # Ignore frontend build and environment files
