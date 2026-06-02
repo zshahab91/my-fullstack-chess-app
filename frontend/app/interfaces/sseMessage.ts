@@ -1,10 +1,10 @@
-import { Move } from "./chessType";
+import { BoardPosition } from "./chessType";
 
 export interface SSEMessage {
   color?: 'white' | 'black';
   message: string;
   status: string;
-  board: Move[];
+  board: BoardPosition[];
   opponent?: string | null;
   turn?: 'white' | 'black';
   isNew: boolean;
