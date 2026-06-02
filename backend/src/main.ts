@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as express from 'express';
 import * as path from 'path';
+import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -23,11 +24,21 @@ async function bootstrap() {
   // ✅ Use raw Express instance for static + catch-all
   const expressApp = app.getHttpAdapter().getInstance();
 
-  expressApp.use(express.static(path.join(__dirname, 'public')));
+  const publicDir = path.join(__dirname, 'public');
+  expressApp.use(express.static(publicDir));
 
   // Catch-all for non-API routes
   expressApp.get(/^(?!\/api).*/, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    const cleanPath = req.path.replace(/\/+$/, '').replace(/^\//, '');
+    const routeHtml = cleanPath
+      ? path.join(publicDir, cleanPath, 'index.html')
+      : path.join(publicDir, 'index.html');
+
+    if (fs.existsSync(routeHtml)) {
+      return res.sendFile(routeHtml);
+    }
+
+    return res.sendFile(path.join(publicDir, 'index.html'));
   });
 
   await app.listen(port);
