@@ -16,6 +16,12 @@ export class User extends Document {
   gameId?: string;
 
   @Prop()
+  oidcIssuer?: string;
+
+  @Prop()
+  oidcSub?: string;
+
+  @Prop()
   createdAt?: Date;
 
   @Prop()
@@ -26,3 +32,13 @@ export class User extends Document {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+UserSchema.index(
+  { oidcIssuer: 1, oidcSub: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      oidcIssuer: { $exists: true, $type: 'string' },
+      oidcSub: { $exists: true, $type: 'string' },
+    },
+  },
+);

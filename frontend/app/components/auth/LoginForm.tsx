@@ -1,9 +1,14 @@
 "use client";
 import { useRef, useState } from "react";
-import { apiService } from "@/app/services/apiService";
 import { toast } from "react-toastify";
 
-export default function LoginForm({ onLogin }: { onLogin?: (nickName: string) => void }) {
+export default function LoginForm({
+  onLogin,
+  onOidcLogin,
+}: {
+  onLogin?: (nickName: string) => Promise<void> | void;
+  onOidcLogin?: () => void;
+}) {
   const [nickName, setNickName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const inProgress = useRef(false);
@@ -15,14 +20,19 @@ export default function LoginForm({ onLogin }: { onLogin?: (nickName: string) =>
     setError(null);
 
     try {
-      await apiService.login(nickName);
-      toast.success('Login successful!');
-      if (onLogin) onLogin(nickName);
+      if (!onLogin) {
+        throw new Error("Login handler is not available");
+      }
+      await onLogin(nickName);
+      toast.success("Login successful!");
     } catch (err: unknown) {
       if (err instanceof Error) {
-        toast.error(err.message || 'Login failed');
+        const message = err.message || "Login failed";
+        setError(message);
+        toast.error(message);
       } else {
-        toast.error('Login failed');
+        setError("Login failed");
+        toast.error("Login failed");
       }
     } finally {
       inProgress.current = false;
@@ -34,7 +44,19 @@ export default function LoginForm({ onLogin }: { onLogin?: (nickName: string) =>
       onSubmit={handleSubmit}
       className="flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface)] p-6 shadow-xl backdrop-blur-sm"
     >
-      <h2 className="text-center text-2xl font-bold tracking-tight text-[var(--text-primary)]">Nick Name</h2>
+      <h2 className="text-center text-2xl font-bold tracking-tight text-[var(--text-primary)]">Login</h2>
+      <p className="text-center text-sm text-[var(--text-secondary)]">
+        Continue with Google or use a nickname.
+      </p>
+      <button
+        type="button"
+        onClick={onOidcLogin}
+        className="rounded-lg border border-[var(--border-soft)] bg-[var(--surface-strong)] py-2.5 font-bold text-[var(--text-primary)] transition hover:cursor-pointer hover:bg-[var(--surface-hover)]"
+      >
+        Continue with Google
+      </button>
+      <div className="h-px w-full bg-[var(--border-soft)]" />
+      <p className="text-sm font-semibold text-[var(--text-secondary)]">Or use nickname</p>
       <input
         type="text"
         placeholder="NickName"
@@ -47,7 +69,7 @@ export default function LoginForm({ onLogin }: { onLogin?: (nickName: string) =>
         type="submit"
         className="rounded-lg bg-[var(--accent)] py-2.5 font-bold text-white transition hover:bg-[var(--accent-strong)] hover:cursor-pointer"
       >
-        Enter
+        Continue with nickname
       </button>
       {error && <span className="text-red-500 text-sm text-center">{error}</span>}
     </form>

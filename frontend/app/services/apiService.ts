@@ -22,6 +22,10 @@ const setAuthToken = (token: string) => {
   setInterceptorAuthToken(token);
 };
 
+const getOidcStartUrl = (returnTo: string) => {
+  return `${API_BASE_URL}/user/login/oidc/start?returnTo=${encodeURIComponent(returnTo)}`;
+};
+
 export const apiService = {
   getAllBoards: async () => {
     const res = await axios.get(`${API_BASE_URL}/boards`);
@@ -133,4 +137,5 @@ export const apiService = {
       );
     }
   },
+  getOidcStartUrl,
 };
