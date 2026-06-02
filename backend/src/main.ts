@@ -30,12 +30,17 @@ async function bootstrap() {
   // Catch-all for non-API routes
   expressApp.get(/^(?!\/api).*/, (req, res) => {
     const cleanPath = req.path.replace(/\/+$/, '').replace(/^\//, '');
-    const routeHtml = cleanPath
-      ? path.join(publicDir, cleanPath, 'index.html')
-      : path.join(publicDir, 'index.html');
+    const candidates = cleanPath
+      ? [
+          path.join(publicDir, `${cleanPath}.html`),
+          path.join(publicDir, cleanPath, 'index.html'),
+        ]
+      : [path.join(publicDir, 'index.html')];
 
-    if (fs.existsSync(routeHtml)) {
-      return res.sendFile(routeHtml);
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate)) {
+        return res.sendFile(candidate);
+      }
     }
 
     return res.sendFile(path.join(publicDir, 'index.html'));
