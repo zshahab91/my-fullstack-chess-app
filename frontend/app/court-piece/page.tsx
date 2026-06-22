@@ -74,7 +74,7 @@ const SUIT_COLORS: Record<CourtPieceSuit, string> = {
   hearts: "text-[#b33644]",
   diamonds: "text-[#b33644]",
   clubs: "text-[#1f6b55]",
-  spades: "text-[#1f334f]",
+  spades: "text-[#5b6adb]",
 };
 
 function CourtPiecePageContent() {
@@ -348,14 +348,14 @@ function CourtPiecePageContent() {
               </p>
             </div>
 
-            <div className="grid gap-2">
+            <div className="grid grid-cols-3 gap-2">
               {game?.hand?.map((card) => (
                 <button
                   key={card.id}
                   type="button"
                   disabled={!isMyTurn || isPlaying || game.status === "finished"}
                   onClick={() => void handlePlayCard(card)}
-                  className="grid-cols-3 flex flex-col items-center justify-center rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-strong)] px-2 py-3 text-center transition hover:-translate-y-0.5 hover:bg-[var(--surface-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex flex-col items-center justify-center rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-strong)] px-2 py-3 text-center transition hover:-translate-y-0.5 hover:bg-[var(--surface-hover)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <div className={`text-lg font-black leading-none ${SUIT_COLORS[card.suit]}`}>
                     {card.label}
@@ -363,7 +363,7 @@ function CourtPiecePageContent() {
                 </button>
               ))}
               {!game?.hand?.length ? (
-                <div className="rounded-2xl border border-dashed border-[var(--border-soft)] bg-[var(--surface-strong)] px-4 py-6 text-sm text-[var(--text-secondary)]">
+                <div className="rounded-2xl border border-dashed border-[var(--border-soft)] bg-[var(--surface-strong)]  px-4 py-6 text-sm text-[var(--text-secondary)]">
                   No cards left in your hand.
                 </div>
               ) : null}
