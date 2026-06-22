@@ -6,6 +6,7 @@ import { apiService } from "../services/apiService";
 import { useRouter, useSearchParams } from "next/navigation";
 import ThemeToggle from "../components/theme/ThemeToggle";
 import LoadingTemplate from "../components/loading/LoadingTemplate";
+import { getAuthToken, saveAuthSession } from "../utils/session";
 
 function LoginPageContent() {
     const router = useRouter();
@@ -13,21 +14,20 @@ function LoginPageContent() {
 
     const handleLogin = useCallback((nickName: string, token: string) => {
         if (token) {
-            sessionStorage.setItem("chess_token", token);
-            sessionStorage.setItem("chess_nickName", nickName);
+            saveAuthSession(nickName, token);
             apiService.setAuthToken(token);
 
-            router.replace("/"); // Use Next.js router for navigation
+            router.replace("/lobby");
         } else {
             console.error("Login failed, no token received");
         }
     }, [router]);
 
     useEffect(() => {
-        const existingToken = sessionStorage.getItem("chess_token");
+        const existingToken = getAuthToken();
         if (existingToken) {
             apiService.setAuthToken(existingToken);
-            router.replace("/");
+            router.replace("/lobby");
             return;
         }
 

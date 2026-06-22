@@ -1,14 +1,11 @@
 "use client";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Header from "./components/header/Header";
 import { apiService } from "./services/apiService";
-import Chess from "./components/chess/chess";
-import { SSEProvider } from "./context/SSEContext";
 import LoadingTemplate from "./components/loading/LoadingTemplate";
+import { getAuthToken, saveAuthSession } from "./utils/session";
 
 function HomeContent() {
-  const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -23,36 +20,22 @@ function HomeContent() {
     }
 
     if (callbackToken && callbackNickName) {
-      sessionStorage.setItem("chess_token", callbackToken);
-      sessionStorage.setItem("chess_nickName", callbackNickName);
+      saveAuthSession(callbackNickName, callbackToken);
       apiService.setAuthToken(callbackToken);
-      setToken(callbackToken);
-      router.replace("/");
+      router.replace("/lobby");
       return;
     }
 
-    const storedToken =
-      typeof window !== "undefined" ? sessionStorage.getItem("chess_token") : null;
+    const storedToken = getAuthToken();
     if (storedToken) {
       apiService.setAuthToken(storedToken);
-      setToken(storedToken);
+      router.replace("/lobby");
     } else {
       router.replace("/login");
     }
   }, [router, searchParams]);
 
-  return (
-    token ? (
-      <SSEProvider token={token}>
-        <div className="items-center justify-items-center min-h-screen pb-20 gap-16 grid grid-rows-[auto_1fr_auto]">
-          <Header />
-          <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-            <Chess />
-          </main>
-        </div>
-      </SSEProvider>
-    ) : null
-  );
+  return null;
 }
 
 export default function Home() {
