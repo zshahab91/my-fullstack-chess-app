@@ -10,6 +10,66 @@ import type {
 } from "../interfaces/chessType";
 import { cleanErrorMessage } from "../utils/global";
 
+type CourtPieceSuit = "hearts" | "diamonds" | "clubs" | "spades";
+
+type CourtPieceRank =
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  | "10"
+  | "J"
+  | "Q"
+  | "K"
+  | "A";
+
+type CourtPieceCard = {
+  id: string;
+  suit: CourtPieceSuit;
+  rank: CourtPieceRank;
+  label: string;
+};
+
+type CourtPiecePlayer = {
+  token: string;
+  nickName: string;
+  isAI: boolean;
+  isHuman: boolean;
+  seatIndex: number;
+  handCount: number;
+  score: number;
+  tricksWon: number;
+};
+
+type CourtPiecePlayedCard = {
+  token: string;
+  nickName: string;
+  seatIndex: number;
+  card: CourtPieceCard;
+};
+
+type CourtPieceGameResponse = {
+  status: "in-progress" | "finished";
+  trumpSuit: CourtPieceSuit;
+  currentTurn: CourtPiecePlayer | null;
+  leadSuit: CourtPieceSuit | null;
+  currentTrick: CourtPiecePlayedCard[];
+  players: CourtPiecePlayer[];
+  hand: CourtPieceCard[];
+  winner: CourtPiecePlayer | null;
+  isNew: boolean;
+  message?: string;
+};
+
+type CourtPieceStartResponse = {
+  game: CourtPieceGameResponse;
+  isNew: boolean;
+};
+
 const DEFAULT_API_BASE_URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3200/api"
@@ -133,6 +193,68 @@ export const apiService = {
           error instanceof Error && error.message
             ? error.message
             : "An error occurred while fetching the board"
+        )
+      );
+    }
+  },
+  startCourtPiece: async (): Promise<CourtPieceStartResponse> => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/court-piece/start`);
+      return response.data;
+    } catch (error: unknown) {
+      if (isAxiosErrorWithBackendError(error)) {
+        const backendError = error.response.data.error;
+        if (backendError) {
+          throw new Error(cleanErrorMessage(backendError));
+        }
+      }
+      throw new Error(
+        cleanErrorMessage(
+          error instanceof Error && error.message
+            ? error.message
+            : "An error occurred while starting Court Piece"
+        )
+      );
+    }
+  },
+  getCourtPieceStatus: async (): Promise<CourtPieceGameResponse> => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/court-piece/status`);
+      return response.data;
+    } catch (error: unknown) {
+      if (isAxiosErrorWithBackendError(error)) {
+        const backendError = error.response.data.error;
+        if (backendError) {
+          throw new Error(cleanErrorMessage(backendError));
+        }
+      }
+      throw new Error(
+        cleanErrorMessage(
+          error instanceof Error && error.message
+            ? error.message
+            : "An error occurred while fetching Court Piece status"
+        )
+      );
+    }
+  },
+  playCourtPieceCard: async (cardId: string): Promise<CourtPieceGameResponse> => {
+    try {
+      const response = await axios.patch(`${API_BASE_URL}/court-piece/play`, {
+        cardId,
+      });
+      return response.data;
+    } catch (error: unknown) {
+      if (isAxiosErrorWithBackendError(error)) {
+        const backendError = error.response.data.error;
+        if (backendError) {
+          throw new Error(cleanErrorMessage(backendError));
+        }
+      }
+      throw new Error(
+        cleanErrorMessage(
+          error instanceof Error && error.message
+            ? error.message
+            : "An error occurred while playing Court Piece"
         )
       );
     }

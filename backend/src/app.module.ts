@@ -12,6 +12,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { GameModule } from './game/game.module';
+import { CourtPieceModule } from './court-piece/court-piece.module';
 import { UserMiddleware } from './user/user.middleware';
 import { User, UserSchema } from './user/schemas/user.schema';
 
@@ -27,6 +28,7 @@ const existingPaths = candidateEnvPaths.filter((p) => fs.existsSync(p));
   imports: [
     UserModule,
     GameModule,
+    CourtPieceModule,
     // load the env file that matches NODE_ENV (default to development)
     ConfigModule.forRoot({
       envFilePath: existingPaths,
@@ -71,6 +73,9 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(UserMiddleware)
-      .forRoutes({ path: 'game/*', method: RequestMethod.ALL });
+      .forRoutes(
+        { path: 'game/*', method: RequestMethod.ALL },
+        { path: 'court-piece/*', method: RequestMethod.ALL },
+      );
   }
 }
