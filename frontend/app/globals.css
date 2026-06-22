@@ -27,6 +27,9 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
+button, a {
+  cursor: pointer;
+}
 
 [data-theme="dark"] {
   --background: #121822;

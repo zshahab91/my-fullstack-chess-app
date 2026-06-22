@@ -443,6 +443,17 @@ export class CourtPieceService {
     const token = startGameDto.token;
     let game = await this.findGameByToken(token);
     if (game) {
+      if (game.status === 'finished') {
+        const user = await this.userService.findByToken(token);
+        const nickName = user?.nickName ?? 'Player';
+        const replacementGame = this.createInitialGame(token, nickName);
+        await replacementGame.save();
+
+        await this.userService.setGameId(token, replacementGame.id);
+
+        return { game: replacementGame as CourtPieceGameDto, isNew: true };
+      }
+
       const currentGame = game as CourtPieceGameDto;
       const afterAiTurns = await this.advanceAiTurns(currentGame);
       await this.courtPieceGameModel

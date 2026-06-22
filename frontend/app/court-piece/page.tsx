@@ -185,6 +185,28 @@ function CourtPiecePageContent() {
     }
   };
 
+  const handleStartAgain = async () => {
+    if (isPlaying) {
+      return;
+    }
+
+    try {
+      setIsPlaying(true);
+      setIsLoading(true);
+      setGame(null);
+      const response = await apiService.startCourtPiece();
+      setGame(response.game);
+      setError(null);
+    } catch (startError) {
+      const message = startError instanceof Error ? startError.message : "Unable to start a new game";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setIsPlaying(false);
+      setIsLoading(false);
+    }
+  };
+
   if (!token) {
     return null;
   }
@@ -202,7 +224,7 @@ function CourtPiecePageContent() {
           <section className="rounded-[28px] border border-[var(--border-soft)] bg-[var(--surface)] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.12)] sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[var(--text-secondary)]">
+                <p className="text-sm font-semibold uppercase  text-[var(--text-secondary)]">
                   Court Piece table
                 </p>
                 <h1 className="mt-3 text-3xl font-black tracking-tight text-[var(--text-primary)] sm:text-4xl">
@@ -220,18 +242,10 @@ function CourtPiecePageContent() {
               </p>
             ) : null}
 
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="mt-6">
               <div className="rounded-3xl border border-[var(--border-soft)] bg-[var(--surface-strong)] p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--text-secondary)]">
-                  Trump
-                </p>
-                <div className={`mt-3 text-2xl font-black ${game ? SUIT_COLORS[game.trumpSuit] : ""}`}>
-                  {game ? `${SUIT_SYMBOLS[game.trumpSuit]} ${game.trumpSuit}` : "-"}
-                </div>
-              </div>
-              <div className="rounded-3xl border border-[var(--border-soft)] bg-[var(--surface-strong)] p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--text-secondary)]">
-                  Table
+                <p className="text-xs font-semibold text-[var(--text-secondary)]">
+                  Players
                 </p>
                 <div className="mt-3 grid gap-3 text-sm text-[var(--text-primary)] sm:grid-cols-2">
                   {game?.players.map((player) => (
@@ -239,9 +253,9 @@ function CourtPiecePageContent() {
                       key={player.token}
                       className={`rounded-2xl border px-3 py-2 ${player.isHuman ? "border-[var(--accent)] bg-[color-mix(in_oklab,var(--accent),white 90%)]" : "border-[var(--border-soft)] bg-[var(--surface-strong)]"}`}
                     >
-                      <div className="font-semibold">{player.nickName}</div>
-                      <div className="text-xs uppercase tracking-[0.28em] text-[var(--text-secondary)]">
-                        {player.isHuman ? "You" : "AI"} · {player.score} score · {player.tricksWon} tricks
+                      <div className="font-semibold">{player.nickName} ( {player.isHuman ? "You" : "AI"} )</div>
+                      <div className="text-xs text-[var(--text-secondary)]">
+                        {player.score} Score <br/> {player.tricksWon} Tricks
                       </div>
                     </div>
                   ))}
@@ -252,7 +266,7 @@ function CourtPiecePageContent() {
             <div className="mt-6 rounded-[28px] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(0,0,0,0.02))] p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--text-secondary)]">
+                  <p className="text-xs font-semibold uppercase  text-[var(--text-secondary)]">
                     Current trick
                   </p>
                   <p className="mt-2 text-sm text-[var(--text-secondary)]">
@@ -266,13 +280,20 @@ function CourtPiecePageContent() {
 
               <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 {game?.currentTrick?.length ? (
-                  game.currentTrick.map((playedCard) => (
+                  game.currentTrick.map((playedCard, index) => (
                     <div
                       key={`${playedCard.token}-${playedCard.card.id}`}
-                      className="rounded-3xl border border-[var(--border-soft)] bg-[var(--surface-strong)] p-4"
+                      className={`rounded-3xl border p-4 ${index === 0 ? "border-[var(--accent)] bg-[color-mix(in_oklab,var(--accent),white 90%)] shadow-[0_8px_24px_rgba(23,98,79,0.15)]" : "border-[var(--border-soft)] bg-[var(--surface-strong)]"}`}
                     >
-                      <div className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--text-secondary)]">
-                        {playedCard.nickName}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-xs font-semibold uppercase text-[var(--text-secondary)]">
+                          {playedCard.nickName}
+                        </div>
+                        {index === 0 && (
+                          <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[10px] font-semibold text-white">
+                            Lead
+                          </span>
+                        )}
                       </div>
                       <div className={`mt-3 text-4xl font-black ${SUIT_COLORS[playedCard.card.suit]}`}>
                         {playedCard.card.label}
@@ -289,18 +310,37 @@ function CourtPiecePageContent() {
 
             {game?.status === "finished" ? (
               <div className="mt-6 rounded-3xl border border-[var(--accent)] bg-[color-mix(in_oklab,var(--accent),white 88%)] px-4 py-3 text-sm font-semibold text-[var(--accent-strong)]">
-                {!game.winner
-                  ? "The game ended in a draw."
-                  : game.winner.isHuman
-                    ? "You won the Court Piece match."
-                    : `${game.winner.nickName} won the Court Piece match.`}
+                <div>
+                  {!game.winner
+                    ? "The game ended in a draw."
+                    : game.winner.isHuman
+                      ? "You won the Court Piece match."
+                      : `${game.winner.nickName} won the Court Piece match.`}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void handleStartAgain()}
+                  className="mt-4 rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] hover:cursor-pointer"
+                >
+                  Start again
+                </button>
               </div>
             ) : null}
           </section>
 
           <aside className="space-y-4 rounded-[28px] border border-[var(--border-soft)] bg-[var(--surface)] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.12)] sm:p-6">
+            {game ? (
+              <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-strong)] px-4 py-3">
+                <p className="text-[10px] font-semibold uppercase text-[var(--text-secondary)]">Trump suit</p>
+                <div className={`mt-1 text-2xl font-black ${SUIT_COLORS[game.trumpSuit]}`}>
+                  {SUIT_SYMBOLS[game.trumpSuit]}
+                  <span className="ml-1 text-base font-semibold capitalize text-[var(--text-primary)]">{game.trumpSuit}</span>
+                </div>
+              </div>
+            ) : null}
+
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[var(--text-secondary)]">
+              <p className="text-sm font-semibold uppercase  text-[var(--text-secondary)]">
                 Your hand
               </p>
               <p className="mt-2 text-sm text-[var(--text-secondary)]">
@@ -308,25 +348,17 @@ function CourtPiecePageContent() {
               </p>
             </div>
 
-            <div className="grid gap-3">
+            <div className="grid gap-2">
               {game?.hand?.map((card) => (
                 <button
                   key={card.id}
                   type="button"
                   disabled={!isMyTurn || isPlaying || game.status === "finished"}
                   onClick={() => void handlePlayCard(card)}
-                  className="flex items-center justify-between rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-strong)] px-4 py-3 text-left transition hover:-translate-y-0.5 hover:bg-[var(--surface-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="grid-cols-3 flex flex-col items-center justify-center rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-strong)] px-2 py-3 text-center transition hover:-translate-y-0.5 hover:bg-[var(--surface-hover)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <div>
-                    <div className={`text-xl font-black ${SUIT_COLORS[card.suit]}`}>
-                      {card.label}
-                    </div>
-                    <div className="text-xs uppercase tracking-[0.3em] text-[var(--text-secondary)]">
-                      {card.suit}
-                    </div>
-                  </div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--text-secondary)]">
-                    Play
+                  <div className={`text-lg font-black leading-none ${SUIT_COLORS[card.suit]}`}>
+                    {card.label}
                   </div>
                 </button>
               ))}
