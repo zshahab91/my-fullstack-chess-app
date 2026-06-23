@@ -36,6 +36,9 @@ export class CourtPieceGame extends Document {
   currentTrick!: CourtPiecePlayedCardDto[];
 
   @Prop({ type: [Object], default: [] })
+  lastCompletedTrick!: CourtPiecePlayedCardDto[];
+
+  @Prop({ type: [Object], default: [] })
   players!: CourtPiecePlayerDto[];
 
   @Prop({ type: String, default: null })

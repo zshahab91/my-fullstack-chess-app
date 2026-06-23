@@ -49,6 +49,7 @@ export interface CourtPieceGameDto {
   currentTurnIndex: number;
   leadSuit: CourtPieceSuit | null;
   currentTrick: CourtPiecePlayedCardDto[];
+  lastCompletedTrick: CourtPiecePlayedCardDto[];
   players: CourtPiecePlayerDto[];
   winnerToken: string | null;
 }
@@ -70,6 +71,7 @@ export interface CourtPieceGameResponseDto {
   currentTurn: CourtPiecePlayerViewDto | null;
   leadSuit: CourtPieceSuit | null;
   currentTrick: CourtPiecePlayedCardDto[];
+  lastCompletedTrick: CourtPiecePlayedCardDto[];
   players: CourtPiecePlayerViewDto[];
   hand: CourtPieceCardDto[];
   winner: CourtPiecePlayerViewDto | null;

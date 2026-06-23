@@ -58,6 +58,7 @@ type CourtPieceGameResponse = {
   currentTurn: CourtPiecePlayer | null;
   leadSuit: CourtPieceSuit | null;
   currentTrick: CourtPiecePlayedCard[];
+  lastCompletedTrick: CourtPiecePlayedCard[];
   players: CourtPiecePlayer[];
   hand: CourtPieceCard[];
   winner: CourtPiecePlayer | null;

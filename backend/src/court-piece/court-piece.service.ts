@@ -254,6 +254,7 @@ export class CourtPieceService {
         : null,
       leadSuit: game.leadSuit,
       currentTrick: game.currentTrick,
+      lastCompletedTrick: game.lastCompletedTrick ?? [],
       players: humanView,
       hand: player.hand,
       winner: winner
@@ -306,6 +307,7 @@ export class CourtPieceService {
       currentTurnIndex: 0,
       leadSuit: null,
       currentTrick: [],
+      lastCompletedTrick: [],
       players,
       winnerToken: null,
     });
@@ -355,6 +357,7 @@ export class CourtPieceService {
 
     winner.tricksWon += 1;
     winner.score += 1;
+    game.lastCompletedTrick = [...game.currentTrick];
     game.currentTrick = [];
     game.leadSuit = null;
     game.currentTurnIndex = winner.seatIndex;

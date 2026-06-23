@@ -13,12 +13,14 @@ const games = [
     description: "Open the current chess table and continue your match.",
     href: "/chess",
     accent: "from-[var(--accent)] to-[var(--accent-strong)]",
+    bgSymbols: ["♟", "♜", "♛", "♚", "♝", "♞"],
   },
   {
     title: "Court Piece",
     description: "Enter the Court Piece room and start a new session.",
     href: "/court-piece",
     accent: "from-[#8d5f2f] to-[#b07d43]",
+    bgSymbols: ["♥", "♠", "♦", "♣", "♠", "♥"],
   },
 ];
 
@@ -58,6 +60,23 @@ function LobbyContent() {
               <div
                 className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${game.accent}`}
               />
+
+              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
+                {game.bgSymbols.map((sym, i) => (
+                  <span
+                    key={i}
+                    className="absolute select-none text-[var(--text-primary)] opacity-[0.18] blur-[2px] transition duration-300 group-hover:opacity-[0.55] group-hover:blur-0"
+                    style={{
+                      fontSize: `${3.5 + (i % 3) * 1.5}rem`,
+                      top: `${10 + (i * 17) % 70}%`,
+                      left: `${5 + (i * 19) % 85}%`,
+                      transform: `rotate(${(i * 37) % 60 - 20}deg)`,
+                    }}
+                  >
+                    {sym}
+                  </span>
+                ))}
+              </div>
               <div className="flex h-full flex-col justify-between gap-6">
                 <div>
                   <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[var(--text-secondary)]">
